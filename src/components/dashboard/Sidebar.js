@@ -42,6 +42,14 @@ export default function Sidebar({ user }) {
           <hr className="sidebar-divider my-0" />
           <ul className="navbar-nav text-light " id="accordionSidebar">
             <li className="nav-item">
+              <div className=" nav-link" href="/dashboard/profile">
+                <span style={{ fontSize: 16 }}>
+                  {/* {user ? user.name : "Profile"} */}Welcome,{" "}
+                  {user ? user.name : "User"}
+                </span>
+              </div>
+            </li>
+            <li className="nav-item">
               <a
                 className={`nav-link ${
                   pathname === "/dashboard" ? "active" : ""
@@ -58,7 +66,9 @@ export default function Sidebar({ user }) {
                 }`}
                 href="/dashboard/profile"
               >
-                <span style={{ fontSize: 16 }}>Profile</span>
+                <span style={{ fontSize: 16 }}>
+                  {/* {user ? user.name : "Profile"} */}Profile
+                </span>
               </a>
             </li>
             <li className="nav-item">

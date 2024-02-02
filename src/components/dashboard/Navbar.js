@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 
-export default function Navbar() {
+export default function Navbar({ user }) {
   const router = useRouter();
   const logout = () => {
     handleLogout();
@@ -319,7 +319,7 @@ export default function Navbar() {
                   href="#"
                 >
                   <span className="d-none d-lg-inline me-2 text-gray-600 small">
-                    Ali Hassan
+                    {user.name}
                   </span>
                   <Image
                     alt="dog"
