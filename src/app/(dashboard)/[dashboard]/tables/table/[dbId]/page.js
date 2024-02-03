@@ -8,25 +8,32 @@ import Footer from "@/components/dashboard/Footer";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import Loading from "@/components/dashboard/Loading";
+import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
+import getData from "@/app/api/table/tableData/[id]/route";
 
 export default function Table() {
+  const router = useRouter();
+
   // getting and setting the databases
-  const [dbs, setDb] = useState();
-  const getDbs = async () => {
+  const [posts, setPosts] = useState();
+  const [users, setUsers] = useState();
+  const path = usePathname();
+  const dbId = path.split("/")[4];
+  const getDb = async () => {
     try {
-      const response = await fetch("/api/database/userDatabases", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // const response = await axios.get(
+      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
+      // );
+      const response = await getData(dbId);
+      // console.log(response);
+      // console.log(response.data.db.posts);
       if (response) {
-        const databases = await response.json();
-        const { dbs } = databases;
+        const posts = response.db.posts;
         // console.log(databases);
         // const user = { ...userData };
-        if (databases) {
-          setDb(dbs);
+        if (posts) {
+          setPosts(posts);
         }
       }
     } catch (err) {
@@ -34,12 +41,7 @@ export default function Table() {
     }
   };
 
-  useEffect(() => {
-    getDbs();
-  }, []);
-  // console.log(dbs);
-
-  // setting and getting the user
+  // // setting and getting the user
   const [user, setUser] = useState();
   const getUser = async () => {
     try {
@@ -65,11 +67,19 @@ export default function Table() {
 
   useEffect(() => {
     getUser();
+    getDb();
+    // eslint-disable-next-line
   }, []);
+  // console.log(posts);
+  // console.log(user);
+
+  const redirect = () => {
+    router.push(`/dashboard/tables`);
+  };
 
   return (
     <>
-      {(user && (
+      {(user && posts && (
         <div id="wrapper">
           <Sidebar user={user} />
           <div className="d-flex flex-column" id="content-wrapper">
@@ -77,10 +87,10 @@ export default function Table() {
               <Navbar user={user} />
 
               <div className="container-fluid">
-                <h3 className="text-dark mb-4">Databases</h3>
-                {(!dbs
-                  ? "No database found!!!"
-                  : dbs && (
+                <h3 className="text-dark mb-4">Database Entries</h3>
+                {(!posts
+                  ? "No data found!!!"
+                  : posts && (
                       <div className="card shadow">
                         <div className="card-header py-3">
                           <p className="text-primary m-0 fw-bold">
@@ -135,24 +145,28 @@ export default function Table() {
                             <table className="table my-0" id="dataTable">
                               <thead>
                                 <tr>
-                                  <th>Name</th>
-                                  <th>Role</th>
-                                  <th>Posts</th>
-                                  <th>Users</th>
+                                  <th>Car Name</th>
+                                  <th>Model</th>
                                   <th>Created At</th>
-                                  <th>Salary</th>
+                                  <th>More</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {dbs.map((db) => {
+                                {posts.map((post) => {
                                   return (
-                                    <tr key={db._id}>
-                                      <td>{db.dbId.name}</td>
-                                      <td>{db.dbRole}</td>
-                                      <td>{db.dbId.posts.length}</td>
-                                      <td>{db.dbId.users.length}</td>
+                                    <tr key={post._id}>
+                                      <td>{post.carName}</td>
+                                      <td>{post.carModel}</td>
                                       <td>
-                                        {new Date(db.dbId.createdAt).toString()}
+                                        {new Date(post.createdAt).toString()}
+                                      </td>
+                                      <td>
+                                        <button
+                                          onClick={redirect}
+                                          className="btn btn-primary"
+                                        >
+                                          More
+                                        </button>
                                       </td>
                                     </tr>
                                   );

@@ -26,7 +26,7 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/login`;
+      const url = `http://localhost:8080/api/auth/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data.token);

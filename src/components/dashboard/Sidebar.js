@@ -74,11 +74,11 @@ export default function Sidebar({ user }) {
             <li className="nav-item">
               <a
                 className={`nav-link ${
-                  pathname === "/dashboard/table" ? "active" : ""
+                  pathname === "/dashboard/tables" ? "active" : ""
                 }`}
-                href="/dashboard/table"
+                href="/dashboard/tables"
               >
-                <span style={{ fontSize: 16 }}>Table</span>
+                <span style={{ fontSize: 16 }}>Tables</span>
               </a>
             </li>
             <li className="nav-item">

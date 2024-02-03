@@ -57,7 +57,7 @@ export default function Dashboard() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
+      const url = `http://localhost:8080/api/db/createDatabase`;
       const payload = { ...db };
       const response = await axios.post(url, payload);
       console.log("Database created successfully!!!");
