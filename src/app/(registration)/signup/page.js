@@ -30,7 +30,8 @@ export default function Signup() {
       const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/signup`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
-      handleLogin(response.data);
+      // console.log(response.data.token);
+      handleLogin(response.data.token);
       Router.push("/dashboard");
       // console.log(response.data);
     } catch (err) {
