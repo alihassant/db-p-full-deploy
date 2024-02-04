@@ -11,15 +11,24 @@ import Loading from "@/components/dashboard/Loading";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
+import Link from "next/link";
+
+const INITIAL_NEW_USER = {
+  email: "",
+  userId: "",
+  dbId: "",
+  role: "viewOnly",
+};
 
 export default function Table() {
   const router = useRouter();
 
   // getting and setting the databases
   const [posts, setPosts] = useState();
-  const [users, setUsers] = useState();
   const path = usePathname();
   const dbId = path.split("/")[4];
+  INITIAL_NEW_USER.dbId = dbId;
+
   const getDb = async () => {
     try {
       // const response = await axios.get(
@@ -70,8 +79,30 @@ export default function Table() {
     getDb();
     // eslint-disable-next-line
   }, []);
+  INITIAL_NEW_USER.userId = user?._id;
   // console.log(posts);
   // console.log(user);
+
+  const [newUser, setNewUser] = useState(INITIAL_NEW_USER);
+  // console.log(newUser);
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({ ...prev, [name]: value }));
+  }
+  // console.log(db);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      const url = `http://localhost:8080/api/db/addNewMember`;
+      const payload = { ...newUser };
+      const response = await axios.post(url, payload);
+      console.log("New User Added Successfully!!!");
+      // console.log(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   const redirect = () => {
     router.push(`/dashboard/tables`);
@@ -87,96 +118,19 @@ export default function Table() {
               <Navbar user={user} />
 
               <div className="container-fluid">
-                <h3 className="text-dark mb-4">Database Entries</h3>
-                {(!posts
-                  ? "No data found!!!"
-                  : posts && (
-                      <div className="card shadow">
-                        <div className="card-header py-3">
-                          <p className="text-primary m-0 fw-bold">
-                            Database Info
-                          </p>
-                        </div>
-                        <div className="card-body">
-                          <div className="row">
-                            <div className="col-md-6 text-nowrap">
-                              <div
-                                id="dataTable_length"
-                                className="dataTables_length"
-                                aria-controls="dataTable"
-                              >
-                                <label className="form-label">
-                                  Show&nbsp;
-                                  <select
-                                    defaultValue={10}
-                                    className="d-inline-block form-select form-select-sm"
-                                  >
-                                    <option value={10}>10</option>
-                                    <option value={25}>25</option>
-                                    <option value={50}>50</option>
-                                    <option value={100}>100</option>
-                                  </select>
-                                  &nbsp;
-                                </label>
-                              </div>
-                            </div>
-                            <div className="col-md-6">
-                              <div
-                                className="text-md-end dataTables_filter"
-                                id="dataTable_filter"
-                              >
-                                <label className="form-label">
-                                  <input
-                                    type="search"
-                                    className="form-control form-control-sm"
-                                    aria-controls="dataTable"
-                                    placeholder="Search"
-                                  />
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          <div
-                            className="table-responsive table mt-2"
-                            id="dataTable"
-                            role="grid"
-                            aria-describedby="dataTable_info"
-                          >
-                            <table className="table my-0" id="dataTable">
-                              <thead>
-                                <tr>
-                                  <th>Car Name</th>
-                                  <th>Model</th>
-                                  <th>Created At</th>
-                                  <th>More</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {posts.map((post) => {
-                                  return (
-                                    <tr key={post._id}>
-                                      <td>{post.carName}</td>
-                                      <td>{post.carModel}</td>
-                                      <td>
-                                        {new Date(post.createdAt).toString()}
-                                      </td>
-                                      <td>
-                                        <button
-                                          onClick={redirect}
-                                          className="btn btn-primary"
-                                        >
-                                          More
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    )) || <Loading />}
+                <h3 className="text-dark display-3 mb-4">Database Entries</h3>
+                <Link
+                  style={{ textDecoration: "none" }}
+                  href={`/dashboard/tables/table/${dbId}/users`}
+                >
+                  <h1 className="display-6">Users</h1>
+                </Link>
+                <Link
+                  style={{ textDecoration: "none" }}
+                  href={`/dashboard/tables/table/${dbId}/posts`}
+                >
+                  <h1 className="display-6">Posts</h1>
+                </Link>
               </div>
             </div>
             <Footer />

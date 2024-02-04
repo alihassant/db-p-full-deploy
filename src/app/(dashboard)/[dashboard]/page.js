@@ -57,7 +57,7 @@ export default function Dashboard() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
+      const url = `http://localhost:8080/api/db/createDatabase`;
       const payload = { ...db };
       const response = await axios.post(url, payload);
       console.log("Database created successfully!!!");
@@ -500,12 +500,9 @@ export default function Dashboard() {
           </a>
         </div>
       )) || <Loading />}
-      <Script
-        defer
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      />
-      <Script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" />
-      {/* <Script defer src="/dashboard/assets/js/bs-init.js" />
+      <Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></Script>
+      {/* <Script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" />
+      <Script defer src="/dashboard/assets/js/bs-init.js" />
       <Script defer src="/dashboard/assets/js/theme.js" /> */}
     </>
   );

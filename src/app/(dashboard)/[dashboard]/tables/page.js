@@ -24,6 +24,7 @@ export default function Table() {
       if (response) {
         const databases = await response.json();
         const { dbs } = databases;
+        if(!dbs) return setDb([]);
         // console.log(databases);
         // const user = { ...userData };
         if (databases) {
@@ -158,13 +159,12 @@ export default function Table() {
                                 </tr>
                               );
                             })}
-                            {!dbs && "No database found!!!"}
                           </tbody>
                         </table>
                       </div>
                     </div>
                   </div>
-                )) || <Loading />}
+                )) || <h1>No database found!!!</h1>}
               </div>
             </div>
             <Footer />

@@ -22,15 +22,13 @@ export default function Signup() {
     setUser((prev) => ({ ...prev, [name]: value }));
   }
   // console.log(user);
-  // console.log(process.env.BASE_URL);
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/signup`;
+      const url = `http://localhost:8080/api/auth/signup`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
-      // console.log(response.data.token);
       handleLogin(response.data.token);
       Router.push("/dashboard");
       // console.log(response.data);
