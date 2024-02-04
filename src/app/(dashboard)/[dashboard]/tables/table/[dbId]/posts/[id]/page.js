@@ -19,7 +19,7 @@ export default function Post() {
   const getPost = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/db/getPost/${postId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getPost/${postId}`
       );
       //   console.log(response.data);
       if (response) {
