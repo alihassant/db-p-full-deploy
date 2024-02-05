@@ -25,6 +25,9 @@ export const config = {
     "/login",
     "/dashboard",
     "/dashboard/profile",
-    "/dashboard/table",
+    "/dashboard/tables",
+    `/dashboard/tables/table/:dbId*`,
+    `/dashboard/tables/table/:dbId*/posts`,
+    `/dashboard/tables/table/:dbId*/posts/:path*`,
   ],
 };

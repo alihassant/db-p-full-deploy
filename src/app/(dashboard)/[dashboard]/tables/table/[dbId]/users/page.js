@@ -11,6 +11,7 @@ import Loading from "@/components/dashboard/Loading";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
+import Link from "next/link";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -18,7 +19,6 @@ const INITIAL_NEW_USER = {
   dbId: "",
   role: "viewOnly",
 };
-
 export default function Table() {
   const router = useRouter();
 
@@ -91,6 +91,7 @@ export default function Table() {
   // console.log(db);
 
   async function handleSubmit(e) {
+    e.preventDefault();
     try {
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
@@ -101,11 +102,6 @@ export default function Table() {
       console.log(err);
     }
   }
-
-  const redirect = () => {
-    router.push(`/dashboard/tables`);
-  };
-
   return (
     <>
       {(user && users && (
@@ -116,7 +112,7 @@ export default function Table() {
               <Navbar user={user} />
 
               <div className="container-fluid">
-                <h3 className="text-dark mb-4">Database Entries</h3>
+                <h3 className="text-dark mb-4">Database Users</h3>
                 {(!users
                   ? "No data found!!!"
                   : users && (
@@ -332,108 +328,20 @@ export default function Table() {
                               </thead>
                               <tbody>
                                 {users.map((user) => {
+                                  // INITIAL_REMOVE_USER.removeUserId = user?._id;
                                   return (
                                     <tr key={user._id}>
                                       <td>{user.name}</td>
                                       <td>{user.role}</td>
                                       <td>{user.email}</td>
                                       <td>
-                                        {(user.role === "owner" && (
-                                          <button
-                                            className="btn btn-primary"
-                                            type="button"
-                                          >
-                                            owner
-                                          </button>
-                                        )) || (
-                                          <>
-                                            <button
-                                              className="btn btn-primary"
-                                              type="button"
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#role"
-                                            >
-                                              Role
-                                            </button>
-
-                                            <button className="btn btn-danger px-3 mx-2">
-                                              Remove
-                                            </button>
-                                          </>
-                                        )}
-
-                                        {/* user role modal */}
-                                        <div
-                                          className="modal fade"
-                                          id="role"
-                                          tabIndex="-1"
-                                          aria-labelledby="exampleModalLabel"
-                                          aria-hidden="true"
+                                        <Link
+                                          href={`/dashboard/tables/table/${dbId}/users/${user.userId}`}
+                                          className="btn btn-primary"
                                         >
-                                          <div className="modal-dialog">
-                                            <div className="modal-content">
-                                              <div className="modal-header">
-                                                <h5
-                                                  className="modal-title"
-                                                  id="exampleModalLabel"
-                                                >
-                                                  New User
-                                                </h5>
-                                                <button
-                                                  type="button"
-                                                  className="btn-close"
-                                                  data-bs-dismiss="modal"
-                                                  aria-label="Close"
-                                                ></button>
-                                              </div>
-                                              <div className="modal-body">
-                                                <form onSubmit={handleSubmit}>
-                                                  <div className="mb-3">
-                                                    <label
-                                                      htmlFor="message-text"
-                                                      className="col-form-label"
-                                                    >
-                                                      Role:
-                                                    </label>
-                                                    <select
-                                                      className="form-select"
-                                                      aria-label="Default select example"
-                                                      onChange={handleChange}
-                                                      name="role"
-                                                    >
-                                                      <option value="viewOnly">
-                                                        View Only
-                                                      </option>
-                                                      <option value="teamLeader">
-                                                        Team Leader
-                                                      </option>
-                                                      <option value="admin">
-                                                        Admin
-                                                      </option>
-                                                    </select>
-                                                  </div>
-                                                </form>
-                                              </div>
-                                              <div className="modal-footer">
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-secondary"
-                                                  data-bs-dismiss="modal"
-                                                >
-                                                  Close
-                                                </button>
-                                                <form onSubmit={handleSubmit}>
-                                                  <button
-                                                    type="submit"
-                                                    className="btn btn-primary"
-                                                  >
-                                                    Add User
-                                                  </button>
-                                                </form>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
+                                          {" "}
+                                          See More
+                                        </Link>
                                       </td>
                                     </tr>
                                   );

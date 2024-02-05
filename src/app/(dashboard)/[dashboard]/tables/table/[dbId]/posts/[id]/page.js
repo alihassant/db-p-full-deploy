@@ -1,17 +1,18 @@
 "use client";
 
 import Loading from "@/components/dashboard/Loading";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import Footer from "@/components/dashboard/Footer";
 import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Navbar from "@/components/dashboard/Navbar";
 
 export default function Post() {
   const path = usePathname();
+  const dbId = path.split("/")[4];
   const postId = path.split("/")[6];
 
   const [post, setPost] = useState();
@@ -94,9 +95,7 @@ export default function Post() {
                       <p className="card-text">Total Profit: {post.profit}</p>
                       <p className="card-text">Remarks: {post.remarks}</p>
                       <Link
-                        href={
-                          "/dashboard/tables/table/65bc2868b766f8c493df8822/posts"
-                        }
+                        href={`/dashboard/tables/table/${dbId}/posts`}
                         className="btn btn-primary"
                       >
                         Go Back

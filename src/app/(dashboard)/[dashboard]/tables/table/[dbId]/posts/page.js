@@ -106,7 +106,7 @@ export default function Table() {
       console.log(err);
     }
   }
-  console.log(newEntry);
+  // console.log(newEntry);
 
   return (
     <>
