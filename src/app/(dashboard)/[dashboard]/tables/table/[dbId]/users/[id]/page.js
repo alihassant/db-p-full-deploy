@@ -78,7 +78,7 @@ export default function Table() {
   const getUserDataClient = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/auth/user/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`
       );
       // const user = res.data;
       // console.log("clientside: ", response);
@@ -134,7 +134,7 @@ export default function Table() {
   const getPosts = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/db/getUserData/${dbId}/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getUserData/${dbId}/${userId}`
       );
       if (response) {
         const posts = response.data.posts;
@@ -159,7 +159,7 @@ export default function Table() {
     e.preventDefault();
     try {
       setLoading(true);
-      const url = `http://localhost:8080/api/db/changeUserRole`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/changeUserRole`;
       const payload = { ...changeRole };
       const response = await axios.post(url, payload);
       setError(null);
@@ -185,7 +185,7 @@ export default function Table() {
     try {
       setLoading(true);
       setError(null);
-      const url = `http://localhost:8080/api/db/removeUser`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/removeUser`;
       const payload = { ...removeUser };
       const response = await axios.post(url, payload);
       setError(null);

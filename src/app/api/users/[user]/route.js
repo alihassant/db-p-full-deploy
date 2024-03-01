@@ -6,7 +6,9 @@ import { NextResponse } from "next/server";
 export async function GET(request) {
   const userId = await getDataFromToken(request);
   //   console.log(userId);
-  const res = await axios.get(`http://localhost:8080/api/auth/user/${userId}`);
+  const res = await axios.get(
+    `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`
+  );
   const user = res.data;
   const path = request.nextUrl.href;
   // if (path) {
@@ -19,7 +21,9 @@ export async function GET(request) {
 }
 
 export async function getUserData(userId) {
-  const res = await axios.get(`http://localhost:8080/api/auth/user/${userId}`);
+  const res = await axios.get(
+    `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`
+  );
 
   // console.log(res.data);
 

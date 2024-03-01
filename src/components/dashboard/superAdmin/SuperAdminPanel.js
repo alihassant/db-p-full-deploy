@@ -12,7 +12,7 @@ export default function SuperAdminPanel({ user }) {
     try {
       setLoading(true);
       const res = await axios.get(
-        `http://localhost:8080/api/superAdmin/getUsersNumber/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUsersNumber/${userId}`
       );
 
       const { usersNumber } = res.data;

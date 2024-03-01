@@ -36,7 +36,7 @@ export default function Table() {
   const getDb = async () => {
     try {
       // const response = await axios.get(
-      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
+      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
       // );
       const response = await getData(dbId);
       // console.log(response);
@@ -99,7 +99,7 @@ export default function Table() {
     e.preventDefault();
     try {
       setLoading(true);
-      const url = `http://localhost:8080/api/db/addNewMember`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload);
       setError(null);
