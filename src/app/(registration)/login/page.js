@@ -1,6 +1,7 @@
 "use client";
 
 import "@/app/dashboard.min.css";
+import Loading from "@/components/dashboard/Loading";
 import { handleLogin } from "@/utils/auth";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -13,7 +14,8 @@ const INITIAL_USER = {
 };
 
 export default function Login() {
-  const Router = useRouter();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(INITIAL_USER);
 
   function handleChange(e) {
@@ -25,14 +27,26 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/login`;
+      setError(null);
+      setLoading(true);
+      const url = `http://localhost:8080/api/auth/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data.token);
-      Router.push("/dashboard");
+      window.location.pathname = "/dashboard";
       // console.log(response.data);
     } catch (err) {
-      console.log(err);
+      // console.log(err.response.data.message);
+      if (err.message === "Network Error") {
+        setError("Network Error: Please check your internet connection.");
+      }
+      setError(err.response.data.message);
+      // console.log(err);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -59,6 +73,11 @@ export default function Login() {
                         <h4 className="text-dark mb-4">Welcome Back!</h4>
                       </div>
                       <form className="user" onSubmit={handleSubmit}>
+                        {error && (
+                          <div className="alert alert-danger" role="alert">
+                            {error}
+                          </div>
+                        )}
                         <div className="mb-3">
                           <input
                             className="form-control form-control-user"
@@ -101,7 +120,17 @@ export default function Login() {
                           className="btn btn-primary d-block btn-user w-100"
                           type="submit"
                         >
-                          Login
+                          {(loading && (
+                            <div
+                              className="spinner-border spinner-border-sm"
+                              role="status"
+                            >
+                              <span className="visually-hidden">
+                                Loading...
+                              </span>
+                            </div>
+                          )) ||
+                            "Login"}
                         </button>
                         <hr />
                         <a

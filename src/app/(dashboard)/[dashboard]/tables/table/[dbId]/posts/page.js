@@ -12,22 +12,29 @@ import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import revalidateDataPath from "@/app/actions";
 
 const INITIAL_NEW_ENTRY = {
-  carName: "",
-  carModel: "",
-  carPurchasePrice: "",
-  carSellPrice: "",
-  remarks: "",
+  tD1: "",
+  tD2: "",
+  tD3: "",
+  tD4: "",
+  tD5: "",
+  tD6: "",
   dbId: "",
   userId: "",
 };
 
 export default function Table() {
-  const router = useRouter();
+  const [successMessage, setSuccessMessage] = useState();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
 
   // getting and setting the databases
+
   const [posts, setPosts] = useState();
+  const [tHeaders, setTHeaders] = useState();
   const path = usePathname();
   const dbId = path.split("/")[4];
   INITIAL_NEW_ENTRY.dbId = dbId;
@@ -35,23 +42,28 @@ export default function Table() {
   const getDb = async () => {
     try {
       // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
+      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
       // );
       const response = await getData(dbId);
+
       // console.log(response);
       // console.log(response.data.db.posts);
       if (response) {
         const posts = response.db.posts;
+        const { tHeaders } = response.db;
         // console.log(databases);
         // const user = { ...userData };
         if (posts) {
           setPosts(posts);
+          setTHeaders(tHeaders);
         }
       }
     } catch (err) {
       console.log(err);
     }
   };
+  // console.log(posts);
+  // console.log(tHeaders);
 
   // // setting and getting the user
   const [user, setUser] = useState();
@@ -97,13 +109,22 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/post/postData`;
+      setLoading(true);
+      setSuccessMessage(null);
+      setError(null);
+
+      const url = `http://localhost:8080/api/post/postData`;
       const payload = { ...newEntry };
       const response = await axios.post(url, payload);
-      console.log("New User Added Successfully!!!");
+
+      setSuccessMessage(response.data.message);
+      console.log("New Entry Added Successfully!!!");
       // console.log(response.data);
     } catch (err) {
-      console.log(err);
+      setSuccessMessage(null);
+      setError(err.response.data.message);
+    } finally {
+      setLoading(false);
     }
   }
   // console.log(newEntry);
@@ -169,19 +190,35 @@ export default function Table() {
                                 </div>
                                 <div className="modal-body">
                                   <form onSubmit={handleSubmit}>
+                                    {error && (
+                                      <div
+                                        className="alert alert-danger"
+                                        role="alert"
+                                      >
+                                        {error}
+                                      </div>
+                                    )}
+                                    {successMessage && (
+                                      <div
+                                        className="alert alert-success"
+                                        role="alert"
+                                      >
+                                        {successMessage}
+                                      </div>
+                                    )}
                                     <div className="mb-3">
                                       <label
                                         htmlFor="message-text"
                                         className="col-form-label"
                                       >
-                                        Name:
+                                        {tHeaders[0].tH1}
                                       </label>
                                       <input
                                         onChange={handleChange}
                                         type="text"
                                         className="form-control"
                                         id="recipient-name"
-                                        name="carName"
+                                        name="tD1"
                                       />
                                     </div>
                                     <div className="mb-3">
@@ -189,14 +226,14 @@ export default function Table() {
                                         htmlFor="message-text"
                                         className="col-form-label"
                                       >
-                                        Model:
+                                        {tHeaders[0].tH2}
                                       </label>
                                       <input
                                         onChange={handleChange}
                                         type="text"
                                         className="form-control"
                                         id="recipient-name"
-                                        name="carModel"
+                                        name="tD2"
                                       />
                                     </div>
                                     <div className="mb-3">
@@ -204,14 +241,14 @@ export default function Table() {
                                         htmlFor="message-text"
                                         className="col-form-label"
                                       >
-                                        Purchase Price:
+                                        {tHeaders[0].tH3}
                                       </label>
                                       <input
                                         onChange={handleChange}
                                         type="text"
                                         className="form-control"
                                         id="recipient-name"
-                                        name="carPurchasePrice"
+                                        name="tD3"
                                       />
                                     </div>
                                     <div className="mb-3">
@@ -219,14 +256,14 @@ export default function Table() {
                                         htmlFor="message-text"
                                         className="col-form-label"
                                       >
-                                        Sell Price:
+                                        {tHeaders[0].tH4}
                                       </label>
                                       <input
                                         onChange={handleChange}
                                         type="text"
                                         className="form-control"
                                         id="recipient-name"
-                                        name="carSellPrice"
+                                        name="tD4"
                                       />
                                     </div>
                                     <div className="mb-3">
@@ -234,14 +271,29 @@ export default function Table() {
                                         htmlFor="message-text"
                                         className="col-form-label"
                                       >
-                                        Remarks:
+                                        {tHeaders[0].tH5}
                                       </label>
                                       <input
                                         onChange={handleChange}
                                         type="text"
                                         className="form-control"
                                         id="recipient-name"
-                                        name="remarks"
+                                        name="tD5"
+                                      />
+                                    </div>
+                                    <div className="mb-3">
+                                      <label
+                                        htmlFor="message-text"
+                                        className="col-form-label"
+                                      >
+                                        {tHeaders[0].tH6}
+                                      </label>
+                                      <input
+                                        onChange={handleChange}
+                                        type="text"
+                                        className="form-control"
+                                        id="recipient-name"
+                                        name="tD6"
                                       />
                                     </div>
                                   </form>
@@ -259,7 +311,17 @@ export default function Table() {
                                       type="submit"
                                       className="btn btn-primary"
                                     >
-                                      Add Entry
+                                      {(loading && (
+                                        <div
+                                          className="spinner-border spinner-border-sm"
+                                          role="status"
+                                        >
+                                          <span className="visually-hidden">
+                                            Loading...
+                                          </span>
+                                        </div>
+                                      )) ||
+                                        "Add Entry"}
                                     </button>
                                   </form>
                                 </div>
@@ -267,51 +329,6 @@ export default function Table() {
                             </div>
                           </div>
                           {/* new modal close */}
-
-                          {/* <!-- Modal --> */}
-                          {/* <div
-                            className="modal fade"
-                            id="exampleModal"
-                            tabIndex="-1"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                          >
-                            <div className="modal-dialog">
-                              <div className="modal-content">
-                                <div className="modal-header">
-                                  <h5
-                                    className="modal-title"
-                                    id="exampleModalLabel"
-                                  >
-                                    Modal title
-                                  </h5>
-                                  <button
-                                    type="button"
-                                    className="btn-close"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                  ></button>
-                                </div>
-                                <div className="modal-body">...</div>
-                                <div className="modal-footer">
-                                  <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                  >
-                                    Close
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                  >
-                                    Save changes
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div> */}
-                          {/* <!-- Modal --> */}
                         </div>
                         <div className="card-body">
                           <div className="row">
@@ -364,8 +381,8 @@ export default function Table() {
                             >
                               <thead>
                                 <tr>
-                                  <th>Car Name</th>
-                                  <th>Model</th>
+                                  <th>{tHeaders[0].tH1}</th>
+                                  <th>{tHeaders[0].tH2}</th>
                                   <th>Created At</th>
                                   <th>Actions</th>
                                 </tr>
@@ -374,18 +391,20 @@ export default function Table() {
                                 {posts.map((post) => {
                                   return (
                                     <tr key={post._id}>
-                                      <td>{post.carName}</td>
-                                      <td>{post.carModel}</td>
+                                      <td>{post.tD1}</td>
+                                      <td>{post.tD2}</td>
                                       <td>
                                         {new Date(post.createdAt).toString()}
                                       </td>
                                       <td>
-                                        <Link
-                                          href={`/dashboard/tables/table/${dbId}/posts/${post._id}`}
+                                        <button
                                           className="btn btn-primary"
+                                          onClick={() => {
+                                            window.location.pathname = `/dashboard/tables/table/${dbId}/posts/${post._id}`;
+                                          }}
                                         >
                                           See More
-                                        </Link>
+                                        </button>
                                       </td>
                                     </tr>
                                   );

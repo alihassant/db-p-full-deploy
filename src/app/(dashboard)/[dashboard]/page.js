@@ -1,10 +1,13 @@
 "use client";
 
+import revalidateDataPath from "@/app/actions";
+import action from "@/app/actions";
 import "@/app/dashboard.min.css";
 import Footer from "@/components/dashboard/Footer";
 import Loading from "@/components/dashboard/Loading";
 import Navbar from "@/components/dashboard/Navbar";
 import Sidebar from "@/components/dashboard/Sidebar";
+import SuperAdminPanel from "@/components/dashboard/superAdmin/SuperAdminPanel";
 import axios from "axios";
 import Script from "next/script";
 import { useEffect, useState } from "react";
@@ -12,13 +15,24 @@ import { useEffect, useState } from "react";
 const INITIAL_DB_NAME = {
   name: "",
   userId: "",
+  tH1: "",
+  tH2: "",
+  tH3: "",
+  tH4: "",
+  tH5: "",
 };
 
 export default function Dashboard() {
+  const [successMessage, setSuccessMessage] = useState();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const [dbNew, setNewDb] = useState(INITIAL_DB_NAME);
   // getting user data
   const [user, setUser] = useState();
   const getUser = async () => {
     try {
+      console.log("getUser called");
       const response = await fetch("/api/users/user", {
         method: "GET",
         headers: {
@@ -27,6 +41,7 @@ export default function Dashboard() {
       });
       if (response) {
         const userData = await response.json();
+        action("/dashboard");
         const { user } = userData;
         // console.log(user);
         // const user = { ...userData };
@@ -39,14 +54,13 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    getUser();
-  }, []);
-  // finish getting user data
-  INITIAL_DB_NAME.userId = user?._id;
-
   // creating database
   const [db, setDb] = useState(INITIAL_DB_NAME);
+  useEffect(() => {
+    getUser();
+  }, [dbNew]);
+  // finish getting user data
+  INITIAL_DB_NAME.userId = user?._id;
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -57,13 +71,25 @@ export default function Dashboard() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
+      setLoading(true);
+      setSuccessMessage(null);
+      setError(null);
+      const url = `http://localhost:8080/api/db/createDatabase`;
       const payload = { ...db };
+      setNewDb(payload);
       const response = await axios.post(url, payload);
-      console.log("Database created successfully!!!");
+      setSuccessMessage(response.data.message);
       // console.log(response.data);
     } catch (err) {
-      console.log(err);
+      // console.log(err.response.data.message);
+      // console.log(err);
+      setError(err.response.data.message);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } finally {
+      revalidateDataPath("/dashboard");
+      setLoading(false);
     }
   }
   // finish creating database
@@ -96,14 +122,14 @@ export default function Dashboard() {
                         <div className="row align-items-center no-gutters">
                           <div className="col me-2">
                             <div className="text-uppercase text-primary fw-bold text-xs mb-1">
-                              <span>Earnings (monthly)</span>
+                              <span>Total Databases</span>
                             </div>
                             <div className="text-dark fw-bold h5 mb-0">
-                              <span>$40,000</span>
+                              <span>{user.databases.length}</span>
                             </div>
                           </div>
                           <div className="col-auto">
-                            <i className="fas fa-calendar fa-2x text-gray-300" />
+                            <i className="fas fa-database fa-2x text-gray-300" />
                           </div>
                         </div>
                       </div>
@@ -115,14 +141,14 @@ export default function Dashboard() {
                         <div className="row align-items-center no-gutters">
                           <div className="col me-2">
                             <div className="text-uppercase text-success fw-bold text-xs mb-1">
-                              <span>Earnings (annual)</span>
+                              <span>Total Posts</span>
                             </div>
                             <div className="text-dark fw-bold h5 mb-0">
-                              <span>$215,000</span>
+                              <span>{user.entries.length}</span>
                             </div>
                           </div>
                           <div className="col-auto">
-                            <i className="fas fa-dollar-sign fa-2x text-gray-300" />
+                            <i className="fas fa-file fa-2x text-gray-300" />
                           </div>
                         </div>
                       </div>
@@ -193,7 +219,22 @@ export default function Dashboard() {
                         </h6>
                       </div>
                       <div className="card-body">
-                        <form onSubmit={handleSubmit}>
+                        {loading && <Loading />}
+                        <form
+                          onSubmit={handleSubmit}
+                          className="needs-validation"
+                          noValidate
+                        >
+                          {error && (
+                            <div className="alert alert-danger" role="alert">
+                              {error}
+                            </div>
+                          )}
+                          {successMessage && (
+                            <div className="alert alert-success" role="alert">
+                              {successMessage}
+                            </div>
+                          )}
                           <div className="row">
                             <div className="col">
                               <div className="mb-3">
@@ -201,7 +242,7 @@ export default function Dashboard() {
                                   className="form-label"
                                   htmlFor="username"
                                 >
-                                  <strong>Username</strong>
+                                  <strong>Database Name:</strong>
                                 </label>
                                 <input
                                   onChange={handleChange}
@@ -214,6 +255,98 @@ export default function Dashboard() {
                               </div>
                             </div>
                           </div>
+
+                          <div className="row g-3 mb-3">
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 1</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 1"
+                                aria-label="Data Header 1"
+                                name="tH1"
+                                id="tH1"
+                                onChange={handleChange}
+                              />
+                            </div>
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 2</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 2"
+                                aria-label="Data Header 2"
+                                name="tH2"
+                                id="tH2"
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-3 mb-3">
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 3</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 3"
+                                aria-label="Data Header 3"
+                                name="tH3"
+                                id="tH3"
+                                onChange={handleChange}
+                              />
+                            </div>
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 4</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 4"
+                                aria-label="Data Header 4"
+                                name="tH4"
+                                id="tH4"
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-3 mb-3">
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 5</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 5"
+                                aria-label="Data Header 5"
+                                name="tH5"
+                                id="tH5"
+                                onChange={handleChange}
+                              />
+                            </div>
+                            <div className="col">
+                              <label className="form-label" htmlFor="tH1">
+                                <strong>Data Header 6</strong>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Data Header 6"
+                                aria-label="Data Header 6"
+                                name="tH6"
+                                id="tH6"
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+
                           <div className="mb-3">
                             <button
                               className="btn btn-primary btn-sm"
@@ -226,59 +359,33 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
-                  <div className="col-lg-5 col-xl-4">
-                    <div className="card shadow mb-4">
-                      <div className="card-header d-flex justify-content-between align-items-center">
-                        <h6 className="text-primary fw-bold m-0">
-                          Revenue Sources
-                        </h6>
-                        <div className="dropdown no-arrow">
-                          <button
-                            className="btn btn-link btn-sm dropdown-toggle"
-                            aria-expanded="false"
-                            data-bs-toggle="dropdown"
-                            type="button"
+                  {user.extraRole === "superAdmin" ? (
+                    <SuperAdminPanel user={user} />
+                  ) : (
+                    <>
+                      <div className="col-lg-5 col-xl-4">
+                        <div className="card shadow mb-4">
+                          <div className="card-header d-flex justify-content-between align-items-center">
+                            <h6 className="text-primary fw-bold m-0">
+                              User Panel
+                            </h6>
+                          </div>
+                          <div
+                            className="card-body"
+                            style={{ minHeight: "165px" }}
                           >
-                            <i className="fas fa-ellipsis-v text-gray-400" />
-                          </button>
-                          <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                            <p className="text-center dropdown-header">
-                              dropdown header:
-                            </p>
-                            <a className="dropdown-item" href="#">
-                              &nbsp;Action
-                            </a>
-                            <a className="dropdown-item" href="#">
-                              &nbsp;Another action
-                            </a>
-                            <div className="dropdown-divider" />
-                            <a className="dropdown-item" href="#">
-                              &nbsp;Something else here
-                            </a>
+                            <div className="row">
+                              <div className="col">
+                                <div className="mb-3">
+                                  <strong>User Panel</strong>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div className="card-body">
-                        <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"doughnut","data":{"labels":["Direct","Social","Referral"],"datasets":[{"label":"","backgroundColor":["#4e73df","#1cc88a","#36b9cc"],"borderColor":["#ffffff","#ffffff","#ffffff"],"data":["50","30","15"]}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"}}}' />
-                        </div>
-                        <div className="text-center small mt-4">
-                          <span className="me-2">
-                            <i className="fas fa-circle text-primary" />
-                            &nbsp;Direct
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-success" />
-                            &nbsp;Social
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-info" />
-                            &nbsp;Refferal
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
                 <div className="row">
                   <div className="col-lg-6 mb-4">

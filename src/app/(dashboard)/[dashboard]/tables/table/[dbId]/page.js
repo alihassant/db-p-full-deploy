@@ -32,7 +32,7 @@ export default function Table() {
   const getDb = async () => {
     try {
       // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
+      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
       // );
       const response = await getData(dbId);
       // console.log(response);
@@ -94,7 +94,7 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
+      const url = `http://localhost:8080/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload);
       console.log("New User Added Successfully!!!");
@@ -119,18 +119,24 @@ export default function Table() {
 
               <div className="container-fluid">
                 <h3 className="text-dark display-3 mb-4">Database Entries</h3>
-                <Link
-                  style={{ textDecoration: "none" }}
-                  href={`/dashboard/tables/table/${dbId}/users`}
+                <button
+                  className="btn btn-success"
+                  style={{ color: "white" }}
+                  onClick={() => {
+                    window.location.pathname = `/dashboard/tables/table/${dbId}/users`;
+                  }}
                 >
-                  <h1 className="display-6">Users</h1>
-                </Link>
-                <Link
-                  style={{ textDecoration: "none" }}
-                  href={`/dashboard/tables/table/${dbId}/posts`}
+                  <h3 className="display-6">Users</h3>
+                </button>
+                <button
+                  className="btn btn-success mx-3"
+                  style={{ color: "white" }}
+                  onClick={() => {
+                    window.location.pathname = `/dashboard/tables/table/${dbId}/posts`;
+                  }}
                 >
-                  <h1 className="display-6">Posts</h1>
-                </Link>
+                  <h3 className="display-6">Posts</h3>
+                </button>
               </div>
             </div>
             <Footer />

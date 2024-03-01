@@ -45,7 +45,7 @@ export default function Sidebar({ user }) {
               <div className=" nav-link" href="/dashboard/profile">
                 <span style={{ fontSize: 16 }}>
                   {/* {user ? user.name : "Profile"} */}Welcome,{" "}
-                  {user ? user.name : "User"}
+                  {user ? user.username : "User"}
                 </span>
               </div>
             </li>

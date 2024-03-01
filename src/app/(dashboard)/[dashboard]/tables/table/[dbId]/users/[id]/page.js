@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import getUserData from "@/app/api/users/[user]/route";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -25,13 +26,23 @@ const INITIAL_REMOVE_USER = {
   dbId: "",
   removeUserId: "",
 };
+
 const INITIAL_USER_POSTS = {
   userId: "",
   dbId: "",
 };
 
+const INITIAL_USER_ROLE = {
+  userId: "",
+  dbId: "",
+  changeUserId: "",
+  role: "",
+};
+
 export default function Table() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   // getting and setting the databases
   const [users, setUsers] = useState();
@@ -39,28 +50,20 @@ export default function Table() {
   const dbId = path.split("/")[4];
   const userId = path.split("/")[6];
 
-  INITIAL_NEW_USER.dbId = dbId;
+  // console.log("dbId: ", dbId, "userId: ", userId);
+
   INITIAL_REMOVE_USER.dbId = dbId;
+  INITIAL_REMOVE_USER.removeUserId = userId;
+  INITIAL_USER_ROLE.dbId = dbId;
+  INITIAL_USER_ROLE.changeUserId = userId;
 
-  INITIAL_USER_POSTS.dbId = dbId;
-  INITIAL_USER_POSTS.userId = userId;
-
-  // console.log(INITIAL_USER_POSTS);
-
-  //   console.log(INITIAL_REMOVE_USER);
+  // console.log(INITIAL_REMOVE_USER);
 
   const getDb = async () => {
     try {
-      // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
-      // );
       const response = await getData(dbId);
-      // console.log(response);
-      // console.log(response.data.db.posts);
       if (response) {
         const users = response.db.users;
-        // console.log(databases);
-        // const user = { ...userData };
         if (users) {
           setUsers(users);
         }
@@ -70,7 +73,36 @@ export default function Table() {
     }
   };
 
-  // // setting and getting the user
+  // // // setting and getting the user
+  const [userData, setUserData] = useState();
+  const getUserDataClient = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/auth/user/${userId}`
+      );
+      // const user = res.data;
+      // console.log("clientside: ", response);
+      if (response) {
+        // const userData = await response.json();
+        const { user } = response.data;
+        const userDb = user;
+        // const user = { ...userData };
+        const db = user.databases.filter((db) => db.dbId === dbId);
+        // console.log("db: ", db[0]);
+        user.dbRole = db[0].dbRole;
+        // console.log("userDb: ", user);
+        INITIAL_USER_ROLE.role = db[0].dbRole;
+        if (user) {
+          setUserData(userDb);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  // console.log(userData);
+  // // console.log(user);
+
   const [user, setUser] = useState();
   const getUser = async () => {
     try {
@@ -83,52 +115,30 @@ export default function Table() {
       if (response) {
         const userData = await response.json();
         const { user } = userData;
-        const userDb = user;
+
+        // console.log(user);
         // const user = { ...userData };
-        const db = user.databases.filter((db) => db.dbId === dbId);
-        userDb.dbRole = db[0].dbRole;
         if (user) {
-          setUser(userDb);
+          setUser(user);
         }
       }
     } catch (err) {
       console.log(err);
     }
   };
-  console.log(user);
 
-  INITIAL_NEW_USER.userId = user?._id;
   INITIAL_REMOVE_USER.userId = user?._id;
-
-  const [newUser, setNewUser] = useState(INITIAL_NEW_USER);
-  // console.log(newUser);
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setNewUser((prev) => ({ ...prev, [name]: value }));
-  }
-  // console.log(db);
-
-  async function handleSubmit(e) {
-    try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
-      const payload = { ...newUser };
-      const response = await axios.post(url, payload);
-      console.log("New User Added Successfully!!!");
-      // console.log(response.data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  INITIAL_USER_ROLE.userId = user?._id;
 
   const [posts, setPosts] = useState(INITIAL_USER_POSTS);
   const getPosts = async () => {
     try {
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getUserData/${dbId}/${userId}`
+        `http://localhost:8080/api/db/getUserData/${dbId}/${userId}`
       );
       if (response) {
         const posts = response.data.posts;
-        console.log(posts);
+        // console.log(posts);
         setPosts(posts.length);
       }
     } catch (err) {
@@ -137,15 +147,66 @@ export default function Table() {
   };
   // console.log(posts);
 
+  // change role functionality
+  const [changeRole, setChangeRole] = useState(INITIAL_USER_ROLE);
+  function handleChangeRole(e) {
+    const { name, value } = e.target;
+    setChangeRole((prev) => ({ ...prev, [name]: value }));
+  }
+  // console.log(changeRole);
+
+  async function handleRoleChange(e) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const url = `http://localhost:8080/api/db/changeUserRole`;
+      const payload = { ...changeRole };
+      const response = await axios.post(url, payload);
+      setError(null);
+      setMessage(response.data.message);
+    } catch (err) {
+      console.log(err.response);
+      setMessage(null);
+      if (err.response) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong!!!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const [removeUser, setRemoveUser] = useState(INITIAL_REMOVE_USER);
-  function handleRemoveUserData(removeUserId) {
-    setRemoveUser((prev) => ({ ...prev, removeUserId }));
-    console.log(removeUser);
+  // console.log("removeUser: ", removeUser);
+
+  async function handleRemoveSubmit(e) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError(null);
+      const url = `http://localhost:8080/api/db/removeUser`;
+      const payload = { ...removeUser };
+      const response = await axios.post(url, payload);
+      setError(null);
+      setMessage(response.data.message);
+      window.location.pathname = `/dashboard/tables/table/${dbId}/users`;
+    } catch (err) {
+      setMessage(null);
+      if (err.response) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong!!!");
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     getUser();
     getDb();
+    getUserDataClient();
     getPosts();
     // eslint-disable-next-line
   }, []);
@@ -161,9 +222,9 @@ export default function Table() {
 
               <div className="container-fluid">
                 <h3 className="text-dark mb-4">Database Users</h3>
-                {(!users
+                {(!userData
                   ? "No data found!!!"
-                  : users && (
+                  : userData && (
                       <div className="card shadow">
                         <div className="card-header py-3">
                           <p
@@ -173,14 +234,16 @@ export default function Table() {
                             User Info
                           </p>
                           <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <Link
-                              href={`/dashboard/tables/table/${dbId}/users`}
+                            <button
                               className="btn btn-success"
                               style={{ color: "white" }}
+                              onClick={() => {
+                                window.location.pathname = `/dashboard/tables/table/${dbId}/users`;
+                              }}
                             >
                               {" "}
                               Go Back
-                            </Link>
+                            </button>
                           </div>
                         </div>
                         <div className="card-body">
@@ -204,12 +267,141 @@ export default function Table() {
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr key={user._id}>
-                                  <td>{user.name}</td>
-                                  <td>{user.dbRole}</td>
-                                  <td>{user.email}</td>
+                                <tr key={userData._id}>
+                                  <td>{userData.name}</td>
+                                  <td>{userData.dbRole}</td>
+                                  <td>{userData.email}</td>
                                   <td>{posts}</td>
                                   <td>
+                                    {/* change role functionality start */}
+                                    <button
+                                      className="btn btn-primary px-3 mx-2"
+                                      type="button"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editRole"
+                                    >
+                                      Role
+                                    </button>
+                                    {/* new modal */}
+                                    <div
+                                      className="modal fade"
+                                      id="editRole"
+                                      tabIndex="-1"
+                                      aria-labelledby="exampleModalLabel"
+                                      aria-hidden="true"
+                                    >
+                                      <div className="modal-dialog">
+                                        <div className="modal-content">
+                                          <div className="modal-header">
+                                            <h5
+                                              className="modal-title"
+                                              id="exampleModalLabel"
+                                            >
+                                              Change Role
+                                            </h5>
+                                            <button
+                                              type="button"
+                                              className="btn-close"
+                                              data-bs-dismiss="modal"
+                                              aria-label="Close"
+                                              onClick={() => {
+                                                setError(null);
+                                                setMessage(null);
+                                              }}
+                                            ></button>
+                                          </div>
+                                          <div className="modal-body">
+                                            {error && (
+                                              <div
+                                                className="alert alert-danger"
+                                                role="alert"
+                                              >
+                                                {error}
+                                              </div>
+                                            )}
+                                            {message && (
+                                              <div
+                                                className="alert alert-success"
+                                                role="alert"
+                                              >
+                                                {message}
+                                              </div>
+                                            )}
+                                            <form onSubmit={handleRoleChange}>
+                                              <div className="mb-3">
+                                                <p>
+                                                  Change the role of the user
+                                                  from{" "}
+                                                  <b>
+                                                    {INITIAL_USER_ROLE.role}
+                                                  </b>{" "}
+                                                  to:
+                                                </p>
+                                              </div>
+                                              <div className="mb-3">
+                                                <label
+                                                  htmlFor="message-text"
+                                                  className="col-form-label"
+                                                >
+                                                  Role:
+                                                </label>
+                                                <select
+                                                  className="form-select"
+                                                  aria-label="Default select example"
+                                                  onChange={handleChangeRole}
+                                                  name="role"
+                                                >
+                                                  <option value="viewOnly">
+                                                    View Only
+                                                  </option>
+                                                  <option value="teamLeader">
+                                                    Team Leader
+                                                  </option>
+                                                  <option value="admin">
+                                                    Admin
+                                                  </option>
+                                                </select>
+                                              </div>
+                                            </form>
+                                          </div>
+                                          <div className="modal-footer">
+                                            <button
+                                              type="button"
+                                              className="btn btn-secondary"
+                                              data-bs-dismiss="modal"
+                                              onClick={() => {
+                                                setError(null);
+                                                setMessage(null);
+                                              }}
+                                            >
+                                              Close
+                                            </button>
+                                            <form onSubmit={handleRoleChange}>
+                                              <button
+                                                type="submit"
+                                                className="btn btn-primary"
+                                              >
+                                                {(loading && (
+                                                  <div
+                                                    className="spinner-border spinner-border-sm"
+                                                    role="status"
+                                                  >
+                                                    <span className="visually-hidden">
+                                                      Loading...
+                                                    </span>
+                                                  </div>
+                                                )) ||
+                                                  "Change Role"}
+                                              </button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {/* role modal close */}
+                                    {/* change role functionality end */}
+
+                                    {/* remove functionality start */}
                                     <button
                                       className="btn btn-danger px-3 mx-2"
                                       type="button"
@@ -240,10 +432,22 @@ export default function Table() {
                                               className="btn-close"
                                               data-bs-dismiss="modal"
                                               aria-label="Close"
+                                              onClick={() => {
+                                                setError(null);
+                                                setMessage(null);
+                                              }}
                                             ></button>
                                           </div>
                                           <div className="modal-body">
-                                            <form onSubmit={handleSubmit}>
+                                            <form onSubmit={handleRemoveSubmit}>
+                                              {error && (
+                                                <div
+                                                  className="alert alert-danger"
+                                                  role="alert"
+                                                >
+                                                  {error}
+                                                </div>
+                                              )}
                                               <div className="mb-3">
                                                 <p>
                                                   Are you sure you want remove
@@ -257,15 +461,29 @@ export default function Table() {
                                               type="button"
                                               className="btn btn-secondary"
                                               data-bs-dismiss="modal"
+                                              onClick={() => {
+                                                setError(null);
+                                                setMessage(null);
+                                              }}
                                             >
                                               Close
                                             </button>
-                                            <form onSubmit={handleSubmit}>
+                                            <form onSubmit={handleRemoveSubmit}>
                                               <button
                                                 type="submit"
                                                 className="btn btn-danger"
                                               >
-                                                Remove Entry
+                                                {(loading && (
+                                                  <div
+                                                    className="spinner-border spinner-border-sm"
+                                                    role="status"
+                                                  >
+                                                    <span className="visually-hidden">
+                                                      Loading...
+                                                    </span>
+                                                  </div>
+                                                )) ||
+                                                  "Remove User"}
                                               </button>
                                             </form>
                                           </div>
@@ -273,6 +491,7 @@ export default function Table() {
                                       </div>
                                     </div>
                                     {/* remove modal end  */}
+                                    {/* remove functionality end */}
                                   </td>
                                 </tr>
                               </tbody>

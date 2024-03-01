@@ -334,7 +334,7 @@ export default function Navbar({ user }) {
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Profile
                   </a>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/dashboard/settings">
                     <i className="fas fa-cogs fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Settings
                   </a>

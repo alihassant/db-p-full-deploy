@@ -12,6 +12,9 @@ import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import action from "@/app/actions";
+import revalidateDataPath from "@/app/actions";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -20,7 +23,9 @@ const INITIAL_NEW_USER = {
   role: "viewOnly",
 };
 export default function Table() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   // getting and setting the databases
   const [users, setUsers] = useState();
@@ -31,7 +36,7 @@ export default function Table() {
   const getDb = async () => {
     try {
       // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
+      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
       // );
       const response = await getData(dbId);
       // console.log(response);
@@ -93,13 +98,25 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
+      setLoading(true);
+      const url = `http://localhost:8080/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload);
-      console.log("New User Added Successfully!!!");
+      setError(null);
+      setMessage(response.data.message);
+      // console.log("New User Added Successfully!!!");
       // console.log(response.data);
     } catch (err) {
-      console.log(err);
+      setMessage(null);
+      if (err.response) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong!!!");
+      }
+      // console.log(err);
+    } finally {
+      revalidateDataPath(path);
+      setLoading(false);
     }
   }
   return (
@@ -162,6 +179,22 @@ export default function Table() {
                                   ></button>
                                 </div>
                                 <div className="modal-body">
+                                  {error && (
+                                    <div
+                                      className="alert alert-danger"
+                                      role="alert"
+                                    >
+                                      {error}
+                                    </div>
+                                  )}
+                                  {message && (
+                                    <div
+                                      className="alert alert-success"
+                                      role="alert"
+                                    >
+                                      {message}
+                                    </div>
+                                  )}
                                   <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
                                       <label
@@ -215,7 +248,17 @@ export default function Table() {
                                       type="submit"
                                       className="btn btn-primary"
                                     >
-                                      Add User
+                                      {(loading && (
+                                        <div
+                                          className="spinner-border spinner-border-sm"
+                                          role="status"
+                                        >
+                                          <span className="visually-hidden">
+                                            Loading...
+                                          </span>
+                                        </div>
+                                      )) ||
+                                        "Add User"}
                                     </button>
                                   </form>
                                 </div>
@@ -335,13 +378,15 @@ export default function Table() {
                                       <td>{user.role}</td>
                                       <td>{user.email}</td>
                                       <td>
-                                        <Link
-                                          href={`/dashboard/tables/table/${dbId}/users/${user.userId}`}
+                                        <button
                                           className="btn btn-primary"
+                                          onClick={() => {
+                                            window.location.pathname = `/dashboard/tables/table/${dbId}/users/${user.userId}`;
+                                          }}
                                         >
                                           {" "}
                                           See More
-                                        </Link>
+                                        </button>
                                       </td>
                                     </tr>
                                   );

@@ -10,32 +10,56 @@ import { useState } from "react";
 const INITIAL_USER = {
   name: "",
   email: "",
+  username: "",
   password: "",
+  password_repeat: "", // Added password_repeat field
 };
 
 export default function Signup() {
   const Router = useRouter();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(INITIAL_USER);
 
   function handleChange(e) {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
   }
-  // console.log(user);
+
+  // Function to handle changes in the repeated password field
+  function handleRepeatPasswordChange(e) {
+    const { value } = e.target;
+    setUser((prev) => ({ ...prev, password_repeat: value }));
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (user.password !== user.password_repeat) {
+      setError("Passwords do not match.");
+      return;
+    }
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/signup`;
+      setError(null);
+      setLoading(true);
+      const url = `http://localhost:8080/api/auth/signup`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data.token);
-      Router.push("/dashboard");
-      // console.log(response.data);
+      window.location.pathname = "/dashboard";
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      if (err.message === "Network Error") {
+        setError("Network Error: Please check your internet connection.");
+      }
+      setError(err.response.data.message);
+      setTimeout(() => {
+        setError(null);
+      }, 10000);
+    } finally {
+      setLoading(false);
     }
   }
+  // console.log(user);
 
   return (
     <>
@@ -58,35 +82,32 @@ export default function Signup() {
                     <h4 className="text-dark mb-4">Create an Account!</h4>
                   </div>
                   <form className="user" onSubmit={handleSubmit}>
+                    {error && (
+                      <div className="alert alert-danger" role="alert">
+                        {error}
+                      </div>
+                    )}
                     <div className="row mb-3">
-                      {/* <div className="col-sm-6 mb-3 mb-sm-0">
+                      <div className="col-sm-6 mb-3 mb-sm-0">
                         <input
                           className="form-control form-control-user"
                           type="text"
-                          id="exampleFirstName"
-                          placeholder="First Name"
-                          name="first_name"
-                        />
-                      </div> */}
-                      <div>
-                        <input
-                          className="form-control form-control-user"
-                          type="trst"
                           id="name"
                           placeholder="Name"
                           name="name"
                           onChange={handleChange}
                         />
                       </div>
-                      {/* <div className="col-sm-6">
+                      <div className="col-sm-6">
                         <input
                           className="form-control form-control-user"
                           type="text"
-                          id="exampleLastName"
-                          placeholder="Last Name"
-                          name="last_name"
+                          id="username"
+                          placeholder="Username"
+                          name="username"
+                          onChange={handleChange}
                         />
-                      </div> */}
+                      </div>
                     </div>
                     <div className="mb-3">
                       <input
@@ -114,9 +135,10 @@ export default function Signup() {
                         <input
                           className="form-control form-control-user"
                           type="password"
-                          id="exampleRepeatPasswordInput"
+                          id="confirmPassword"
                           placeholder="Repeat Password"
                           name="password_repeat"
+                          onChange={handleRepeatPasswordChange}
                         />
                       </div>
                     </div>
@@ -124,7 +146,15 @@ export default function Signup() {
                       className="btn btn-primary d-block btn-user w-100"
                       type="submit"
                     >
-                      Register Account
+                      {(loading && (
+                        <div
+                          className="spinner-border spinner-border-sm"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      )) ||
+                        "Register Account"}
                     </button>
                     <hr />
                     <a

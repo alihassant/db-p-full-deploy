@@ -9,30 +9,34 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 import Loading from "@/components/dashboard/Loading";
 import Link from "next/link";
+import axios from "axios";
 
 export default function Table() {
   // getting and setting the databases
   const [dbs, setDb] = useState();
+  // const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
   const getDbs = async () => {
     try {
-      const response = await fetch("/api/database/userDatabases", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get("/api/database/userDatabases");
+      // console.log(response);
       if (response) {
-        const databases = await response.json();
-        const { dbs } = databases;
-        if(!dbs) return setDb([]);
+        // const databases = await response.json();
+        const { dbs } = response.data;
+
+        // console.log(dbs.length);
         // console.log(databases);
         // const user = { ...userData };
-        if (databases) {
+        if (dbs.length === 0) {
+          setError("Could not retrieve the databases for the user");
+        }
+        if (dbs) {
           setDb(dbs);
         }
       }
     } catch (err) {
       console.log(err);
+      setError("No database found for the user!!!");
     }
   };
 
@@ -61,8 +65,8 @@ export default function Table() {
   };
 
   useEffect(() => {
-    getDbs();
     getUser();
+    getDbs();
   }, []);
 
   return (
@@ -76,6 +80,7 @@ export default function Table() {
 
               <div className="container-fluid">
                 <h3 className="text-dark mb-4">Databases</h3>
+                {/* {error && <h1>{error}</h1>} */}
                 {(dbs && (
                   <div className="card shadow">
                     <div className="card-header py-3">
@@ -149,12 +154,14 @@ export default function Table() {
                                     {new Date(db.dbId.createdAt).toString()}
                                   </td>
                                   <td>
-                                    <Link
+                                    <button
                                       className="btn btn-primary"
-                                      href={`./tables/table/${db.dbId._id}`}
+                                      onClick={() => {
+                                        window.location.pathname = `/dashboard/tables/table/${db.dbId._id}`;
+                                      }}
                                     >
                                       More
-                                    </Link>
+                                    </button>
                                   </td>
                                 </tr>
                               );
@@ -164,7 +171,8 @@ export default function Table() {
                       </div>
                     </div>
                   </div>
-                )) || <h1>No database found!!!</h1>}
+                )) ||
+                  (error && <h1>{error}</h1>) || <Loading />}
               </div>
             </div>
             <Footer />
