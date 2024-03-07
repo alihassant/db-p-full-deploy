@@ -5,7 +5,7 @@ export default async function POST(req, res) {
   try {
     const { db } = req.body; // assuming the request body contains the "db" object
 
-    const url = `http://localhost:8080/api/db/createDatabase`;
+    const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
     const payload = { ...db };
 
     // Perform necessary operations with the payload

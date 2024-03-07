@@ -45,7 +45,7 @@ export default function Post() {
   const getPost = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/db/getPost/${postId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getPost/${postId}`
       );
       // console.log(response.data);
       if (response) {
@@ -71,7 +71,7 @@ export default function Post() {
   const getTHeaders = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/db/getPostHeaders/${dbId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getPostHeaders/${dbId}`
       );
       if (response) {
         const { tHeaders } = response.data;
@@ -127,7 +127,7 @@ export default function Post() {
       setSuccessMessage(null);
       setError(null);
 
-      const url = `http://localhost:8080/api/post/updateData/${postId}`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
       const payload = { ...updatedEntry };
       const response = await axios.post(url, payload);
 
@@ -151,7 +151,7 @@ export default function Post() {
     try {
       setLoading(true);
       setError(null);
-      const url = `http://localhost:8080/api/post/deletePost`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/post/deletePost`;
       const payload = { ...removeEntry };
       const response = await axios.post(url, payload);
       setError(null);
@@ -174,7 +174,7 @@ export default function Post() {
     try {
       setLoading(true);
       setError(null);
-      const url = `http://localhost:8080/api/db/getPostPDF/${dbId}/${postId}`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getPostPDF/${dbId}/${postId}`;
       const response = await axios.get(url, { responseType: "blob" });
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
 

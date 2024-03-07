@@ -22,7 +22,7 @@ export default function Test() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `http://localhost:8080/api/db/test`;
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/test`;
       const payload = { ...data };
       const response = await axios.post(url, payload);
       // console.log(response.data);
