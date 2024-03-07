@@ -14,7 +14,7 @@ export default function Sidebar({ user }) {
 
   return (
     <>
-      <nav className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-success p-0 navbar-dark">
+      <nav className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
         <div className="container-fluid d-flex flex-column p-0">
           <a
             className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
@@ -45,7 +45,7 @@ export default function Sidebar({ user }) {
               <div className=" nav-link" href="/dashboard/profile">
                 <span style={{ fontSize: 16 }}>
                   {/* {user ? user.name : "Profile"} */}Welcome,{" "}
-                  {user ? user.name : "User"}
+                  {user ? user.username : "User"}
                 </span>
               </div>
             </li>

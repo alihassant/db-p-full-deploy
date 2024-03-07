@@ -89,8 +89,9 @@ export default function Profile() {
                                       className="form-label"
                                       htmlFor="username"
                                     >
-                                      <strong>Username: {user.username}</strong>
+                                      <strong>Username: {user.name}</strong>
                                       <br></br>
+                                      <strong>id: {user._id}</strong>
                                     </label>
                                   </div>
                                 </div>
@@ -129,19 +130,6 @@ export default function Profile() {
                                       <strong>
                                         Last Name: {user.name.split(" ")[1]}
                                       </strong>
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="row">
-                                <div className="col">
-                                  <div className="mb-3">
-                                    <label
-                                      className="form-label"
-                                      htmlFor="userId"
-                                    >
-                                      <strong>ID: {user._id}</strong>
                                     </label>
                                   </div>
                                 </div>

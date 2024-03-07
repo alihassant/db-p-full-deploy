@@ -12,6 +12,9 @@ import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import action from "@/app/actions";
+import revalidateDataPath from "@/app/actions";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -20,10 +23,13 @@ const INITIAL_NEW_USER = {
   role: "viewOnly",
 };
 export default function Table() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   // getting and setting the databases
   const [users, setUsers] = useState();
+  const [db, setDb] = useState();
   const path = usePathname();
   const dbId = path.split("/")[4];
   INITIAL_NEW_USER.dbId = dbId;
@@ -31,7 +37,7 @@ export default function Table() {
   const getDb = async () => {
     try {
       // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
+      //   `http://localhost:8080/api/user/getDatabase/${dbId}`
       // );
       const response = await getData(dbId);
       // console.log(response);
@@ -41,6 +47,7 @@ export default function Table() {
         // console.log(databases);
         // const user = { ...userData };
         if (users) {
+          setDb(response.db);
           setUsers(users);
         }
       }
@@ -93,15 +100,51 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
+      setLoading(true);
+      setError(null);
+      const url = `http://localhost:8080/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload);
-      console.log("New User Added Successfully!!!");
+      getDb();
+      setMessage(response.data.message);
+      // console.log("New User Added Successfully!!!");
       // console.log(response.data);
     } catch (err) {
-      console.log(err);
+      setMessage(null);
+      if (err.response) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong!!!");
+      }
+      // console.log(err);
+    } finally {
+      revalidateDataPath(path);
+      setLoading(false);
     }
   }
+
+  async function handlePDF(e) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const url = `http://localhost:8080/api/db/getUsersPDF/${dbId}`;
+      const response = await axios.get(url, { responseType: "blob" });
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+
+      // Assuming you want to display the PDF in the browser
+      const url1 = window.URL.createObjectURL(pdfBlob);
+      window.open(url1, "_blank");
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function redirectToDB() {
+    window.location.pathname = `/dashboard/tables/table/${dbId}`;
+  }
+
   return (
     <>
       {(user && users && (
@@ -118,15 +161,20 @@ export default function Table() {
                   : users && (
                       <div className="card shadow">
                         <div className="card-header py-3">
-                          <p
+                          <button
                             className="text-primary m-0 fw-bold"
-                            style={{ float: "left" }}
+                            style={{
+                              float: "left",
+                              border: "none",
+                              background: "none",
+                            }}
+                            onClick={redirectToDB}
                           >
-                            Database Info
-                          </p>
+                            {db?.name}
+                          </button>
                           <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button
-                              className="btn btn-success me-md-2 "
+                              className="btn btn-primary me-md-2 "
                               style={{ color: "white" }}
                               type="button"
                               data-bs-toggle="modal"
@@ -134,6 +182,25 @@ export default function Table() {
                               data-bs-whatever="@getbootstrap"
                             >
                               Add User
+                            </button>
+
+                            <button
+                              className="btn btn-primary me-md-2 "
+                              style={{ color: "white" }}
+                              type="button"
+                              onClick={handlePDF}
+                            >
+                              {(loading && (
+                                <div
+                                  className="spinner-border spinner-border-sm"
+                                  role="status"
+                                >
+                                  <span className="visually-hidden">
+                                    Loading...
+                                  </span>
+                                </div>
+                              )) ||
+                                "Download PDF"}
                             </button>
                           </div>
 
@@ -162,6 +229,22 @@ export default function Table() {
                                   ></button>
                                 </div>
                                 <div className="modal-body">
+                                  {error && (
+                                    <div
+                                      className="alert alert-danger"
+                                      role="alert"
+                                    >
+                                      {error}
+                                    </div>
+                                  )}
+                                  {message && (
+                                    <div
+                                      className="alert alert-success"
+                                      role="alert"
+                                    >
+                                      {message}
+                                    </div>
+                                  )}
                                   <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
                                       <label
@@ -215,7 +298,17 @@ export default function Table() {
                                       type="submit"
                                       className="btn btn-primary"
                                     >
-                                      Add User
+                                      {(loading && (
+                                        <div
+                                          className="spinner-border spinner-border-sm"
+                                          role="status"
+                                        >
+                                          <span className="visually-hidden">
+                                            Loading...
+                                          </span>
+                                        </div>
+                                      )) ||
+                                        "Add User"}
                                     </button>
                                   </form>
                                 </div>
@@ -335,13 +428,15 @@ export default function Table() {
                                       <td>{user.role}</td>
                                       <td>{user.email}</td>
                                       <td>
-                                        <Link
-                                          href={`/dashboard/tables/table/${dbId}/users/${user.userId}`}
+                                        <button
                                           className="btn btn-primary"
+                                          onClick={() => {
+                                            window.location.pathname = `/dashboard/tables/table/${dbId}/users/${user.userId}`;
+                                          }}
                                         >
                                           {" "}
                                           See More
-                                        </Link>
+                                        </button>
                                       </td>
                                     </tr>
                                   );

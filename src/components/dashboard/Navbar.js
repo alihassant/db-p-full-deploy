@@ -28,7 +28,7 @@ export default function Navbar({ user }) {
                 type="text"
                 placeholder="Search for ..."
               />
-              <button className="btn btn-success py-0" type="button">
+              <button className="btn btn-primary py-0" type="button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -133,7 +133,7 @@ export default function Navbar({ user }) {
                     href="#"
                   >
                     <div className="me-3">
-                      <div className="bg-success icon-circle">
+                      <div className="bg-primary icon-circle">
                         <i className="fas fa-donate text-white" />
                       </div>
                     </div>
@@ -206,7 +206,7 @@ export default function Navbar({ user }) {
                         width={60}
                         height={60}
                       />
-                      <div className="bg-success status-indicator" />
+                      <div className="bg-primary status-indicator" />
                     </div>
                     <div className="fw-bold">
                       <div className="text-truncate">
@@ -281,7 +281,7 @@ export default function Navbar({ user }) {
                         className="rounded-circle"
                         src="/dashboard/assets/img/avatars/avatar5.jpeg"
                       />
-                      <div className="bg-success status-indicator" />
+                      <div className="bg-primary status-indicator" />
                     </div>
                     <div className="fw-bold">
                       <div className="text-truncate">
@@ -334,7 +334,7 @@ export default function Navbar({ user }) {
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Profile
                   </a>
-                  <a className="dropdown-item" href="#">
+                  <a className="dropdown-item" href="/dashboard/settings">
                     <i className="fas fa-cogs fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Settings
                   </a>
