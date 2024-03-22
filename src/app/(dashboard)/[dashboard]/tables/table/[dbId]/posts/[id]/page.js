@@ -9,16 +9,13 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/dashboard/Navbar";
 import Sidebar from "@/components/dashboard/Sidebar";
+import Image from "next/image";
+import getData from "@/app/api/table/tableData/[id]/route";
+import Link from "next/link";
+// import { useRouter } from "next/navigation";
 
 const INITIAL_UPDATE_ENTRY = {
-  tD1: "",
-  tD2: "",
-  tD3: "",
-  tD4: "",
-  tD5: "",
-  tD6: "",
   dbId: "",
-  userId: "",
 };
 
 const INITIAL_REMOVE_ENTRY = {
@@ -27,14 +24,24 @@ const INITIAL_REMOVE_ENTRY = {
   postId: "",
 };
 
-export default function Post() {
+export default function Post({ params }) {
+  // const router = useRouter();
+
   const [successMessage, setSuccessMessage] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
+  const [totalHeaders, setTotalHeaders] = useState();
+  const [updatedEntry, setUpdatedEntry] = useState(INITIAL_UPDATE_ENTRY);
+  const [username, setUsername] = useState();
+  const [images, setImages] = useState();
+  const [photoPreview, setPhotoPreview] = useState();
+  const [db, setDb] = useState();
 
-  const path = usePathname();
-  const dbId = path.split("/")[4];
-  const postId = path.split("/")[6];
+  let userId = "";
+
+  // const path = usePathname();
+  const dbId = params.dbId;
+  const postId = params.id;
   INITIAL_UPDATE_ENTRY.dbId = dbId;
   INITIAL_REMOVE_ENTRY.dbId = dbId;
   INITIAL_REMOVE_ENTRY.postId = postId;
@@ -50,34 +57,39 @@ export default function Post() {
       // console.log(response.data);
       if (response) {
         const { post } = response.data;
-        INITIAL_UPDATE_ENTRY.tD1 = post.tD1;
-        INITIAL_UPDATE_ENTRY.tD2 = post.tD2;
-        INITIAL_UPDATE_ENTRY.tD3 = post.tD3;
-        INITIAL_UPDATE_ENTRY.tD4 = post.tD4;
-        INITIAL_UPDATE_ENTRY.tD5 = post.tD5;
-        INITIAL_UPDATE_ENTRY.tD6 = post.tD6;
-        // const { tHeaders } = response.data;
-        // console.log(post);
+        const { tData } = post;
+        const { username: creator } = response.data;
+        const { images } = post;
+        if (images) {
+          setImages(images);
+        }
+
+        setUsername(creator);
+
         if (post) {
           setPost(post);
+          setUpdatedEntry((prev) => ({ ...prev, ...tData }));
         }
       }
     } catch (err) {
       console.log(err);
     }
   };
-  // console.log(INITIAL_UPDATE_ENTRY);
 
-  const getTHeaders = async () => {
+  const getDb = async () => {
     try {
-      const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getPostHeaders/${dbId}`
-      );
+      const response = await getData(dbId);
+
       if (response) {
-        const { tHeaders } = response.data;
-        // console.log("tHeaders", tHeaders);
-        if (tHeaders) {
+        const posts = response.db.posts;
+        const { tHeaders } = response.db;
+        const { totalHeaders } = response.db;
+        const { media } = response.db;
+
+        if (posts) {
+          setDb(response.db);
           setTHeaders(tHeaders);
+          setTotalHeaders(totalHeaders);
         }
       }
     } catch (err) {
@@ -98,27 +110,46 @@ export default function Post() {
       if (response) {
         const userData = await response.json();
         const { user } = userData;
-        // console.log(user);
-        // const user = { ...userData };
         if (user) {
           setUser(user);
+          userId = user._id;
+          setUpdatedEntry((prev) => ({ ...prev, userId: user._id }));
         }
       }
     } catch (err) {
       console.log(err);
     }
   };
-  INITIAL_UPDATE_ENTRY.userId = user?._id;
+
   INITIAL_REMOVE_ENTRY.userId = user?._id;
 
-  const [updatedEntry, setUpdatedEntry] = useState(INITIAL_UPDATE_ENTRY);
-  // console.log(newUser);
   function handleChange(e) {
-    const { name, value } = e.target;
-    setUpdatedEntry((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (files) {
+      setUpdatedEntry((prev) => ({ ...prev, [name]: files[0] }));
+      setPhotoPreview(URL.createObjectURL(files[0]));
+    } else {
+      setUpdatedEntry((prev) => ({ ...prev, [name]: value }));
+    }
   }
-  // console.log(updatedEntry);
-  // console.log(db);
+
+  async function handleImageUpload() {
+    const data = new FormData();
+    data.append("file", updatedEntry.images);
+    //ml_default is my upload preset name
+    data.append("upload_preset", "ml_default");
+    //davfhdzxx is my personal cloud name
+    data.append("cloud_name", "davfhdzxx");
+    const url = "https://api.cloudinary.com/v1_1/davfhdzxx/image/upload";
+    const response = await axios.post(url, data);
+    const images = {
+      url: response.data.url,
+      publicId: response.data.public_id,
+    };
+
+    setUpdatedEntry((prev) => ({ ...prev, images }));
+    return images;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -126,13 +157,23 @@ export default function Post() {
       setLoading(true);
       setSuccessMessage(null);
       setError(null);
+      if (db.media) {
+        const images = await handleImageUpload();
+        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
+        const payload = { ...updatedEntry, images };
+        const response = await axios.post(url, payload);
+        getPost();
+        setSuccessMessage(response.data.message);
+        console.log("Entry Updated Successfully!!!");
+      } else {
+        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
+        const payload = { ...updatedEntry, images: null };
+        const response = await axios.post(url, payload);
+        getPost();
+        setSuccessMessage(response.data.message);
+        console.log("Entry Updated Successfully!!!");
+      }
 
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
-      const payload = { ...updatedEntry };
-      const response = await axios.post(url, payload);
-
-      setSuccessMessage(response.data.message);
-      console.log("Entry Updated Successfully!!!");
       // console.log(response.data);
     } catch (err) {
       setSuccessMessage(null);
@@ -144,19 +185,22 @@ export default function Post() {
   }
 
   const [removeEntry, setRemoveEntry] = useState(INITIAL_REMOVE_ENTRY);
-  // console.log("removeUser: ", removeUser);
 
   async function handleRemoveSubmit(e) {
     e.preventDefault();
     try {
       setLoading(true);
       setError(null);
+
+      // await handleRemoveImage();
+
       const url = `https://good-puce-elephant-tie.cyclic.app/api/post/deletePost`;
       const payload = { ...removeEntry };
       const response = await axios.post(url, payload);
       setError(null);
       setSuccessMessage(response.data.message);
       window.location.pathname = `/dashboard/tables/table/${dbId}/posts`;
+      // router.push(`/dashboard/tables/table/${dbId}/posts`);
     } catch (err) {
       setSuccessMessage(null);
       if (err.response) {
@@ -198,376 +242,298 @@ export default function Post() {
   useEffect(() => {
     getPost();
     getUser();
-    getTHeaders();
+    // getTHeaders();
+    getDb();
     // eslint-disable-next-line
   }, []);
 
   return (
     <>
       {(user && (
-        <div id="wrapper">
-          <Sidebar user={user} />
-          <div className="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-              <Navbar user={user} />
+        <div className="container-fluid">
+          <h3 className="text-dark mb-4">Database Entries</h3>
+          {(post && (
+            <div className="card">
+              <div className="card-header">
+                <h5
+                  className="text-primary d-md-flex justify-content-md-end m-0 fw-bold"
+                  style={{ float: "left" }}
+                >
+                  Data{" "}
+                  <span className="badge bg-info ms-2">
+                    {(post.modified && "Updated") || "Original"}
+                  </span>
+                </h5>
 
-              <div className="container-fluid">
-                <h3 className="text-dark mb-4">Database Entries</h3>
-                {(post && (
-                  <div className="card">
-                    <div className="card-header">
-                      <h5
-                        className="text-primary d-md-flex justify-content-md-end m-0 fw-bold"
-                        style={{ float: "left" }}
-                      >
-                        Data
-                      </h5>
+                <div className="d-grid gap-2 d-md-flex justify-content-md-end d-sm-flex justify-content-sm-end ">
+                  <button
+                    className="btn btn-primary me-md-2 "
+                    style={{ color: "white" }}
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    data-bs-whatever="@getbootstrap"
+                  >
+                    Update Entry
+                  </button>
 
-                      <div className="d-grid gap-2 d-md-flex justify-content-md-end d-sm-flex justify-content-sm-end ">
-                        <button
-                          className="btn btn-primary me-md-2 "
-                          style={{ color: "white" }}
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#exampleModal"
-                          data-bs-whatever="@getbootstrap"
-                        >
-                          Update Entry
-                        </button>
-
-                        <button
-                          className="btn btn-primary me-md-2 "
-                          style={{ color: "white" }}
-                          type="button"
-                          onClick={handlePDF}
-                        >
-                          {(loading && (
-                            <div
-                              className="spinner-border spinner-border-sm"
-                              role="status"
-                            >
-                              <span className="visually-hidden">
-                                Loading...
-                              </span>
-                            </div>
-                          )) ||
-                            "Download PDF"}
-                        </button>
-                      </div>
-
-                      {/* update modal */}
+                  <button
+                    className="btn btn-primary me-md-2 "
+                    style={{ color: "white" }}
+                    type="button"
+                    onClick={handlePDF}
+                  >
+                    {(loading && (
                       <div
-                        className="modal fade"
-                        id="exampleModal"
-                        tabIndex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
+                        className="spinner-border spinner-border-sm"
+                        role="status"
                       >
-                        <div className="modal-dialog">
-                          <div className="modal-content">
-                            <div className="modal-header">
-                              <h5
-                                className="modal-title"
-                                id="exampleModalLabel"
-                              >
-                                New Entry
-                              </h5>
-                              <button
-                                type="button"
-                                className="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                                onClick={() => {
-                                  setError(null);
-                                  setSuccessMessage(null);
-                                }}
-                              ></button>
-                            </div>
-                            <div className="modal-body">
-                              <form onSubmit={handleSubmit}>
-                                {error && (
-                                  <div
-                                    className="alert alert-danger"
-                                    role="alert"
-                                  >
-                                    {error}
-                                  </div>
-                                )}
-                                {successMessage && (
-                                  <div
-                                    className="alert alert-success"
-                                    role="alert"
-                                  >
-                                    {successMessage}
-                                  </div>
-                                )}
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH1}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD1"
-                                    value={updatedEntry.tD1}
-                                  />
-                                </div>
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH2}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD2"
-                                    value={updatedEntry.tD2}
-                                  />
-                                </div>
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH3}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD3"
-                                    value={updatedEntry.tD3}
-                                  />
-                                </div>
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH4}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD4"
-                                    value={updatedEntry.tD4}
-                                  />
-                                </div>
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH5}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD5"
-                                    value={updatedEntry.tD5}
-                                  />
-                                </div>
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="message-text"
-                                    className="col-form-label"
-                                  >
-                                    {tHeaders[0].tH6}
-                                  </label>
-                                  <input
-                                    onChange={handleChange}
-                                    type="text"
-                                    className="form-control"
-                                    id="recipient-name"
-                                    name="tD6"
-                                    value={updatedEntry.tD6}
-                                  />
-                                </div>
-                              </form>
-                            </div>
-                            <div className="modal-footer">
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                data-bs-dismiss="modal"
-                                onClick={() => {
-                                  setError(null);
-                                  setSuccessMessage(null);
-                                }}
-                              >
-                                Close
-                              </button>
-                              <form onSubmit={handleSubmit}>
-                                <button
-                                  type="submit"
-                                  className="btn btn-primary"
-                                >
-                                  {(loading && (
-                                    <div
-                                      className="spinner-border spinner-border-sm"
-                                      role="status"
-                                    >
-                                      <span className="visually-hidden">
-                                        Loading...
-                                      </span>
-                                    </div>
-                                  )) ||
-                                    "Update Entry"}
-                                </button>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
+                        <span className="visually-hidden">Loading...</span>
                       </div>
-                      {/* update modal close */}
-                    </div>
-                    <div className="card-body">
-                      <h5 className="card-title">
-                        {tHeaders[0].tH1}: {post.tD1}
-                      </h5>
-                      <p className="card-title">
-                        {tHeaders[0].tH2}: {post.tD2}
-                      </p>
-                      <p className="card-text">
-                        {tHeaders[0].tH3}: {post.tD3}
-                      </p>
-                      <p className="card-text">
-                        {tHeaders[0].tH4}: {post.tD4}
-                      </p>
-                      <p className="card-text">
-                        {tHeaders[0].tH5}: {post.tD5}
-                      </p>
-                      <p className="card-text">
-                        {tHeaders[0].tH6}: {post.tD6}
-                      </p>
-                      <p className="card-text">
-                        Created At: {new Date(post.createdAt).toString()}
-                      </p>
-                      <p className="card-text">
-                        Updated At: {new Date(post.updatedAt).toString()}
-                      </p>
-                      <button
-                        // href={`/dashboard/tables/table/${dbId}/posts`}
-                        className="btn btn-primary"
-                        onClick={() => window.history.back()}
-                      >
-                        Go Back
-                      </button>
-                      {/* remove functionality start */}
-                      <button
-                        className="btn btn-danger px-3 mx-2"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#remove"
-                      >
-                        Remove
-                      </button>
-                      {/* remove modal  */}
-                      <div
-                        className="modal fade"
-                        id="remove"
-                        tabIndex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
-                      >
-                        <div className="modal-dialog">
-                          <div className="modal-content">
-                            <div className="modal-header">
-                              <h5
-                                className="modal-title"
-                                id="exampleModalLabel"
-                              >
-                                Remove
-                              </h5>
-                              <button
-                                type="button"
-                                className="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                                onClick={() => {
-                                  setError(null);
-                                  setSuccessMessage(null);
-                                }}
-                              ></button>
-                            </div>
-                            <div className="modal-body">
-                              <form onSubmit={handleRemoveSubmit}>
-                                {error && (
-                                  <div
-                                    className="alert alert-danger"
-                                    role="alert"
-                                  >
-                                    {error}
-                                  </div>
-                                )}
-                                <div className="mb-3">
-                                  <p>
-                                    Are you sure you want remove this entry?
-                                  </p>
-                                </div>
-                              </form>
-                            </div>
-                            <div className="modal-footer">
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                data-bs-dismiss="modal"
-                                onClick={() => {
-                                  setError(null);
-                                  setSuccessMessage(null);
-                                }}
-                              >
-                                Close
-                              </button>
-                              <form onSubmit={handleRemoveSubmit}>
-                                <button
-                                  type="submit"
-                                  className="btn btn-danger"
-                                >
-                                  {(loading && (
-                                    <div
-                                      className="spinner-border spinner-border-sm"
-                                      role="status"
-                                    >
-                                      <span className="visually-hidden">
-                                        Loading...
-                                      </span>
-                                    </div>
-                                  )) ||
-                                    "Remove Entry"}
-                                </button>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
+                    )) ||
+                      "Download PDF"}
+                  </button>
+                </div>
+
+                {/* update modal */}
+                <div
+                  className="modal fade"
+                  id="exampleModal"
+                  tabIndex="-1"
+                  aria-labelledby="exampleModalLabel"
+                  aria-hidden="true"
+                >
+                  <div className="modal-dialog">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">
+                          New Entry
+                        </h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                          onClick={() => {
+                            setError(null);
+                            setSuccessMessage(null);
+                          }}
+                        ></button>
                       </div>
-                      {/* remove modal end  */}
-                      {/* remove functionality end */}
+                      <div className="modal-body">
+                        <form onSubmit={handleSubmit}>
+                          {error && (
+                            <div className="alert alert-danger" role="alert">
+                              {error}
+                            </div>
+                          )}
+                          {successMessage && (
+                            <div className="alert alert-success" role="alert">
+                              {successMessage}
+                            </div>
+                          )}
+
+                          {Array.from({ length: totalHeaders }).map(
+                            (_, index) => (
+                              <div className="mb-3" key={index}>
+                                <label className="col-form-label">
+                                  {tHeaders[0][`tH${index + 1}`]}
+                                </label>
+                                <input
+                                  onChange={handleChange}
+                                  type="text"
+                                  className="form-control"
+                                  name={`tD${index + 1}`}
+                                  value={updatedEntry[`tD${index + 1}`]}
+                                />
+                              </div>
+                            )
+                          )}
+                          {db.media && (
+                            <div className="card-body text-center shadow">
+                              <Image
+                                priority
+                                alt="User Avatar"
+                                className=" mb-3 mt-4"
+                                // src="/dashboard/assets/img/avatars/avatar1.jpg"
+                                src={photoPreview || images[0].url}
+                                width={160}
+                                height={160}
+                              />
+
+                              <div className="mb-4">
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  id="inputGroupFile02"
+                                  name="images"
+                                  onChange={handleChange}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </form>
+                      </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                          onClick={() => {
+                            setError(null);
+                            setSuccessMessage(null);
+                          }}
+                        >
+                          Close
+                        </button>
+                        <form onSubmit={handleSubmit}>
+                          <button type="submit" className="btn btn-primary">
+                            {(loading && (
+                              <div
+                                className="spinner-border spinner-border-sm"
+                                role="status"
+                              >
+                                <span className="visually-hidden">
+                                  Loading...
+                                </span>
+                              </div>
+                            )) ||
+                              "Update Entry"}
+                          </button>
+                        </form>
+                      </div>
                     </div>
                   </div>
-                )) || <Loading />}
+                </div>
+                {/* update modal close */}
+              </div>
+
+              <div className="card-body">
+                {(images &&
+                  images.map((image) => {
+                    return (
+                      <Image
+                        height={200}
+                        width={200}
+                        alt="image"
+                        priority={true}
+                        key={image}
+                        src={`${image.url}`}
+                      />
+                    );
+                  })) || <Loading />}
+                <h5 className="card-title mb-3">
+                  {tHeaders[0].tH1}: {post.tData.tD1}
+                </h5>
+
+                {/* {Array.from({ length: totalHeaders }).map((_, index) => {
+                        <p className="card-text" key={index}>
+                          {tHeaders[0].tH[index + 1]}: {post.tData.tD[index]}
+                        </p>;
+                      })} */}
+
+                {Array.from({ length: totalHeaders - 1 }).map((_, index) => (
+                  <p className="card-text" key={index}>
+                    {tHeaders[0][`tH${index + 2}`]}:{" "}
+                    {post.tData[`tD${index + 2}`]}
+                  </p>
+                ))}
+
+                <p className="card-text">
+                  Created At: {new Date(post.createdAt).toString()}
+                </p>
+                <p className="card-text">
+                  Updated At: {new Date(post.updatedAt).toString()}
+                </p>
+                <p className="card-text ">Created By: {username}</p>
+                <Link
+                  href={`/dashboard/tables/table/${dbId}/posts`}
+                  className="btn btn-primary"
+                >
+                  Go Back
+                </Link>
+                {/* remove functionality start */}
+                <button
+                  className="btn btn-danger px-3 mx-2"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#remove"
+                >
+                  Remove
+                </button>
+                {/* remove modal  */}
+                <div
+                  className="modal fade"
+                  id="remove"
+                  tabIndex="-1"
+                  aria-labelledby="exampleModalLabel"
+                  aria-hidden="true"
+                >
+                  <div className="modal-dialog">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">
+                          Remove
+                        </h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                          onClick={() => {
+                            setError(null);
+                            setSuccessMessage(null);
+                          }}
+                        ></button>
+                      </div>
+                      <div className="modal-body">
+                        <form onSubmit={handleRemoveSubmit}>
+                          {error && (
+                            <div className="alert alert-danger" role="alert">
+                              {error}
+                            </div>
+                          )}
+                          <div className="mb-3">
+                            <p>Are you sure you want remove this entry?</p>
+                          </div>
+                        </form>
+                      </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                          onClick={() => {
+                            setError(null);
+                            setSuccessMessage(null);
+                          }}
+                        >
+                          Close
+                        </button>
+                        <form onSubmit={handleRemoveSubmit}>
+                          <button type="submit" className="btn btn-danger">
+                            {(loading && (
+                              <div
+                                className="spinner-border spinner-border-sm"
+                                role="status"
+                              >
+                                <span className="visually-hidden">
+                                  Loading...
+                                </span>
+                              </div>
+                            )) ||
+                              "Remove Entry"}
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* remove modal end  */}
+                {/* remove functionality end */}
               </div>
             </div>
-            <Footer />
-          </div>
-          <a className="border rounded d-inline scroll-to-top" href="#page-top">
-            <i className="fas fa-angle-up" />
-          </a>
-          <Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></Script>
+          )) || <Loading />}
         </div>
       )) || <Loading />}
     </>

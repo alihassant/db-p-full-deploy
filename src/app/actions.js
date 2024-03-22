@@ -7,7 +7,7 @@ export default async function revalidateDataPath(path) {
   console.log(`Revalidated ${path}`);
 }
 
-export async function revalidateDataTag(path) {
-  revalidateTag(path);
-  console.log(`Revalidated ${path}`);
+export async function revalidateDataTag(tag) {
+  revalidateTag(tag);
+  console.log(`Revalidated ${tag}`);
 }

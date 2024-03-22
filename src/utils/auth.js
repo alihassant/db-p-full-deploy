@@ -2,7 +2,11 @@ import cookie from "js-cookie";
 // import Router from "next/router";
 
 export function handleLogin(token) {
-  cookie.set("token", token);
+  // here { expires: 8 / (60 * 60 * 24) } means 8 seconds
+  // cookie.set("token", token, { expires: 8 / (60 * 60 * 24) });
+
+  // here { expires: 7 } means 7 days
+  cookie.set("token", token, { expires: 7 });
   //   Router.push("/dashboard");
 }
 

@@ -1,5 +1,6 @@
 import { handleLogout } from "@/utils/auth";
 import axios from "axios";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Script from "next/script";
 
@@ -16,7 +17,7 @@ export default function Sidebar({ user }) {
     <>
       <nav className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
         <div className="container-fluid d-flex flex-column p-0">
-          <a
+          <Link
             className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
             href="/"
           >
@@ -38,7 +39,7 @@ export default function Sidebar({ user }) {
             <div className="sidebar-brand-text mx-3">
               <span>Vortaps</span>
             </div>
-          </a>
+          </Link>
           <hr className="sidebar-divider my-0" />
           <ul className="navbar-nav text-light " id="accordionSidebar">
             <li className="nav-item">
@@ -50,17 +51,29 @@ export default function Sidebar({ user }) {
               </div>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className={`nav-link ${
                   pathname === "/dashboard" ? "active" : ""
                 }`}
                 href="/dashboard"
               >
                 <span style={{ fontSize: 16 }}>Dashboard</span>
-              </a>
+              </Link>
             </li>
+            {user.extraRole === "superAdmin" && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    pathname === "/adminPanel" ? "active" : ""
+                  }`}
+                  href="/dashboard/adminPanel"
+                >
+                  <span style={{ fontSize: 16 }}>Admin Panel</span>
+                </Link>
+              </li>
+            )}
             <li className="nav-item">
-              <a
+              <Link
                 className={`nav-link ${
                   pathname === "/dashboard/profile" ? "active" : ""
                 }`}
@@ -69,17 +82,17 @@ export default function Sidebar({ user }) {
                 <span style={{ fontSize: 16 }}>
                   {/* {user ? user.name : "Profile"} */}Profile
                 </span>
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className={`nav-link ${
                   pathname === "/dashboard/tables" ? "active" : ""
                 }`}
                 href="/dashboard/tables"
               >
                 <span style={{ fontSize: 16 }}>Tables</span>
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
               <button className="nav-link" onClick={logout}>

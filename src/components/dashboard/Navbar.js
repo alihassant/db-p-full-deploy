@@ -1,13 +1,42 @@
 import { handleLogout } from "@/utils/auth";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { useEffect, useState } from "react";
 
-export default function Navbar({ user }) {
+const defaultImage =
+  "https://t4.ftcdn.net/jpg/00/64/67/27/360_F_64672736_U5kpdGs9keUll8CRQ3p3YaEv2M6qkVY5.jpg";
+
+export default function Navbar({ user, notifications }) {
   const router = useRouter();
+  const [unreadNotifications, setUnreadNotifications] = useState(notifications);
+  const [unreadCount, setUnreadCount] = useState(0); // Track unread count
+
+  useEffect(() => {
+    // Update unreadNotifications state when notifications prop changes
+    setUnreadNotifications(notifications);
+
+    // Check if there are new notifications
+    const newNotifications = notifications.filter(
+      (notification) => !unreadNotifications.includes(notification)
+    );
+
+    // Increment unread count if there are new notifications
+    if (newNotifications.length > 0) {
+      setUnreadCount((prevCount) => prevCount + newNotifications.length);
+    }
+  }, [notifications, unreadNotifications]);
+
   const logout = () => {
     handleLogout();
     router.push("/login");
+  };
+  // console.log("notifications", notifications);
+
+  const handleNotificationsClick = () => {
+    // Reset unread count to zero
+    setUnreadCount(0);
   };
 
   return (
@@ -19,7 +48,7 @@ export default function Navbar({ user }) {
             id="sidebarToggleTop"
             type="button"
           >
-            <i className="fa fa-bars " style={{ color: "#1cc588" }} />
+            <i className="fa fa-bars " />
           </button>
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="input-group">
@@ -43,7 +72,7 @@ export default function Navbar({ user }) {
             </div>
           </form>
           <ul className="navbar-nav flex-nowrap ms-auto">
-            <li className="nav-item dropdown d-sm-none no-arrow">
+            {/* <li className="nav-item dropdown d-sm-none no-arrow">
               <a
                 className="dropdown-toggle nav-link"
                 aria-expanded="false"
@@ -89,7 +118,7 @@ export default function Navbar({ user }) {
                   </div>
                 </form>
               </div>
-            </li>
+            </li> */}
             <li className="nav-item dropdown no-arrow mx-1">
               <div className="nav-item dropdown no-arrow">
                 <a
@@ -97,8 +126,13 @@ export default function Navbar({ user }) {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   href="#"
+                  onClick={handleNotificationsClick}
                 >
-                  <span className="badge bg-danger badge-counter">3+</span>
+                  {unreadCount !== 0 ? (
+                    <span className="badge bg-danger badge-counter">
+                      {unreadCount}
+                    </span>
+                  ) : null}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -111,203 +145,34 @@ export default function Navbar({ user }) {
                   </svg>
                 </a>
                 <div className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                  <h6 className="dropdown-header">alerts center</h6>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="me-3">
-                      <div className="bg-primary icon-circle">
-                        <i className="fas fa-file-alt text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 12, 2019
-                      </span>
-                      <p>A new monthly report is ready to download!</p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="me-3">
-                      <div className="bg-primary icon-circle">
-                        <i className="fas fa-donate text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 7, 2019
-                      </span>
-                      <p>$290.29 has been deposited into your account!</p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="me-3">
-                      <div className="bg-warning icon-circle">
-                        <i className="fas fa-exclamation-triangle text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 2, 2019
-                      </span>
-                      <p>
-                        Spending Alert: We have noticed unusually high spending
-                        for your account.
-                      </p>
-                    </div>
-                  </a>
-                  <a
+                  <h6 className="dropdown-header">Notifications</h6>
+                  {unreadNotifications
+                    .toReversed()
+                    .slice(0, 5)
+                    .map((notification, index) => (
+                      <a
+                        key={index}
+                        className="dropdown-item d-flex align-items-center"
+                        href="#"
+                      >
+                        <div className="fw-bold">
+                          <div className="">
+                            <span>{notification.message || ""}</span>
+                          </div>
+                          <p className="small text-gray-500 mb-0">
+                            {new Date(notification.createdAt).toTimeString()}
+                          </p>
+                        </div>
+                      </a>
+                    ))}
+                  <Link
+                    href="/dashboard/notifications"
                     className="dropdown-item text-center small text-gray-500"
-                    href="#"
                   >
-                    Show All Alerts
-                  </a>
+                    Show All Notifications
+                  </Link>
                 </div>
               </div>
-            </li>
-            <li className="nav-item dropdown no-arrow mx-1">
-              <div className="nav-item dropdown no-arrow">
-                <a
-                  className="dropdown-toggle nav-link"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                >
-                  <span className="badge bg-danger badge-counter">7</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    className="bi bi-envelope"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
-                  </svg>
-                </a>
-                <div className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                  <h6 className="dropdown-header">alerts center</h6>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <Image
-                        alt="dog"
-                        className="rounded-circle"
-                        src="/dashboard/assets/img/avatars/avatar4.jpeg"
-                        width={60}
-                        height={60}
-                      />
-                      <div className="bg-primary status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Hi there! I am wondering if you can help me with a
-                          problem I have been having.
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Emily Fowler - 58m
-                      </p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <Image
-                        alt="dog"
-                        className="rounded-circle"
-                        src="/dashboard/assets/img/avatars/avatar2.jpeg"
-                        width={60}
-                        height={60}
-                      />
-                      <div className="status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          I have the photos that you ordered last month!
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">Jae Chun - 1d</p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <Image
-                        alt="dog"
-                        width={60}
-                        height={60}
-                        className="rounded-circle"
-                        src="/dashboard/assets/img/avatars/avatar3.jpeg"
-                      />
-                      <div className="bg-warning status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Last month&apos;s report looks great, I am very happy
-                          with the progress so far, keep up the good work!
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Morgan Alvarez - 2d
-                      </p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <Image
-                        alt="dog"
-                        width={60}
-                        height={60}
-                        className="rounded-circle"
-                        src="/dashboard/assets/img/avatars/avatar5.jpeg"
-                      />
-                      <div className="bg-primary status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Am I a good boy? The reason I ask is because someone
-                          told me that people say this to all dogs, even if they
-                          aren&apos;t good...
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Chicken the Dog · 2w
-                      </p>
-                    </div>
-                  </a>
-                  <a
-                    className="dropdown-item text-center small text-gray-500"
-                    href="#"
-                  >
-                    Show All Alerts
-                  </a>
-                </div>
-              </div>
-              <div
-                className="shadow dropdown-list dropdown-menu dropdown-menu-end"
-                aria-labelledby="alertsDropdown"
-              />
             </li>
             <div className="d-none d-sm-block topbar-divider" />
             <li className="nav-item dropdown no-arrow">
@@ -326,14 +191,14 @@ export default function Navbar({ user }) {
                     width={60}
                     height={60}
                     className="border rounded-circle img-profile"
-                    src="/dashboard/assets/img/avatars/avatar1.jpg"
+                    src={`${user?.profilePic.url || defaultImage}`}
                   />
                 </a>
                 <div className="dropdown-menu shadow dropdown-menu-end animated--grow-in">
-                  <a className="dropdown-item" href="#">
+                  <Link href="/dashboard/profile" className="dropdown-item">
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Profile
-                  </a>
+                  </Link>
                   <a className="dropdown-item" href="/dashboard/settings">
                     <i className="fas fa-cogs fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Settings

@@ -32,16 +32,9 @@ export default function Table() {
 
   const getDb = async () => {
     try {
-      // const response = await axios.get(
-      //   `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${dbId}`
-      // );
       const response = await getData(dbId);
-      // console.log(response);
-      // console.log(response.data.db.posts);
       if (response) {
         const posts = response.db.posts;
-        // console.log(databases);
-        // const user = { ...userData };
         if (posts) {
           setDb(response.db);
           setPosts(posts);
@@ -65,8 +58,6 @@ export default function Table() {
       if (response) {
         const userData = await response.json();
         const { user } = userData;
-        // console.log(user);
-        // const user = { ...userData };
         if (user) {
           setUser(user);
         }
@@ -82,16 +73,12 @@ export default function Table() {
     // eslint-disable-next-line
   }, []);
   INITIAL_NEW_USER.userId = user?._id;
-  // console.log(posts);
-  // console.log(user);
 
   const [newUser, setNewUser] = useState(INITIAL_NEW_USER);
-  // console.log(newUser);
   function handleChange(e) {
     const { name, value } = e.target;
     setNewUser((prev) => ({ ...prev, [name]: value }));
   }
-  // console.log(db);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -100,7 +87,6 @@ export default function Table() {
       const payload = { ...newUser };
       const response = await axios.post(url, payload);
       console.log("New User Added Successfully!!!");
-      // console.log(response.data);
     } catch (err) {
       console.log(err);
     }
@@ -113,39 +99,20 @@ export default function Table() {
   return (
     <>
       {(user && posts && (
-        <div id="wrapper">
-          <Sidebar user={user} />
-          <div className="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-              <Navbar user={user} />
-
-              <div className="container-fluid">
-                <h3 className="text-dark display-3 mb-4">
-                  {db?.name || "Database"}
-                </h3>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    window.location.pathname = `/dashboard/tables/table/${dbId}/users`;
-                  }}
-                >
-                  <h3 className="display-6">Users</h3>
-                </button>
-                <button
-                  className="btn btn-primary mx-3"
-                  onClick={() => {
-                    window.location.pathname = `/dashboard/tables/table/${dbId}/posts`;
-                  }}
-                >
-                  <h3 className="display-6">Posts</h3>
-                </button>
-              </div>
-            </div>
-            <Footer />
-          </div>
-          <a className="border rounded d-inline scroll-to-top" href="#page-top">
-            <i className="fas fa-angle-up" />
-          </a>
+        <div className="container-fluid">
+          <h3 className="text-dark display-3 mb-4">{db?.name || "Database"}</h3>
+          <Link
+            href={`/dashboard/tables/table/${dbId}/users`}
+            className="btn btn-primary"
+          >
+            <h3 className="display-6">Users</h3>
+          </Link>
+          <Link
+            href={`/dashboard/tables/table/${dbId}/posts`}
+            className="btn btn-primary mx-3"
+          >
+            <h3 className="display-6">Posts</h3>
+          </Link>
         </div>
       )) || <Loading />}
       <Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></Script>
