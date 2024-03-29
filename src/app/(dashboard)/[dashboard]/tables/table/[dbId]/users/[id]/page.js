@@ -13,6 +13,7 @@ import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
 import getUserData from "@/app/api/users/[user]/route";
+import Cookies from "js-cookie";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -75,8 +76,14 @@ export default function Table({ params }) {
   const [userData, setUserData] = useState();
   const getUserDataClient = async () => {
     try {
+      const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response) {
         const { user } = response.data;
@@ -120,8 +127,14 @@ export default function Table({ params }) {
   const [posts, setPosts] = useState(INITIAL_USER_POSTS);
   const getPosts = async () => {
     try {
+      const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getUserData/${dbId}/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getUserData/${dbId}/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response) {
         const posts = response.data.posts;
@@ -142,6 +155,7 @@ export default function Table({ params }) {
   async function handleRoleChange(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       if (changeRole.role === INITIAL_USER_ROLE.role) {
         setError("Role is already set to this value!!!");
         return;
@@ -153,7 +167,11 @@ export default function Table({ params }) {
       setLoading(true);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/changeUserRole`;
       const payload = { ...changeRole };
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       getUserDataClient();
       setError(null);
       setMessage(response.data.message);
@@ -175,11 +193,16 @@ export default function Table({ params }) {
   async function handleRemoveSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setError(null);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/removeUser`;
       const payload = { ...removeUser };
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setError(null);
       setMessage(response.data.message);
       window.location.pathname = `/dashboard/tables/table/${dbId}/users`;

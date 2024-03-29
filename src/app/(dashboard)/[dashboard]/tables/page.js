@@ -10,12 +10,17 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/dashboard/Loading";
 import Link from "next/link";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default function Table() {
   // getting and setting the databases
   const [dbs, setDb] = useState();
   // const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
+
+  const token = Cookies.get("token");
+  console.log();
+
   const getDbs = async () => {
     try {
       const response = await axios.get("/api/database/userDatabases");

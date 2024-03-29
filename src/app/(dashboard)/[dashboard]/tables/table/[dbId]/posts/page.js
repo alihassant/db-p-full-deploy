@@ -14,6 +14,7 @@ import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import revalidateDataPath from "@/app/actions";
+import Cookies from "js-cookie";
 
 let INITIAL_NEW_ENTRY = {
   dbId: "",
@@ -98,7 +99,6 @@ export default function Table() {
   INITIAL_NEW_ENTRY.userId = user?._id;
 
   const [newEntry, setNewEntry] = useState(INITIAL_NEW_ENTRY);
-  console.log("newEntry", newEntry);
   function handleChange(e) {
     const { name, value, files } = e.target;
     if (files) {
@@ -128,6 +128,7 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setSuccessMessage(null);
       setError(null);
@@ -139,12 +140,20 @@ export default function Table() {
           images: { url: imageUrl.imageUrl, publicId: imageUrl.publicId },
         };
         const url = `https://good-puce-elephant-tie.cyclic.app/api/post/postData`;
-        const response = await axios.post(url, payload);
+        const response = await axios.post(url, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setSuccessMessage(response.data.message);
       } else {
         const url = `https://good-puce-elephant-tie.cyclic.app/api/post/postData`;
         const payload = { ...newEntry };
-        const response = await axios.post(url, payload);
+        const response = await axios.post(url, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setSuccessMessage(response.data.message);
         setNewEntry(INITIAL_NEW_ENTRY);
       }
@@ -169,10 +178,16 @@ export default function Table() {
   async function handlePDF(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getPostsPDF/${dbId}`;
       const response = await axios.get(url, { responseType: "blob" });
-      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfBlob = new Blob([response.data], {
+        type: "application/pdf",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Assuming you want to display the PDF in the browser
       const url1 = window.URL.createObjectURL(pdfBlob);
@@ -200,7 +215,7 @@ export default function Table() {
                   <div className="card-header py-3">
                     <Link
                       href={`/dashboard/tables/table/${dbId}`}
-                      className="text-primary m-0 fw-bold"
+                      className="text-primary m-0 fw-bold me-sm-3"
                       style={{
                         float: "left",
                         textDecoration: "none",
@@ -208,9 +223,9 @@ export default function Table() {
                     >
                       {db?.name}
                     </Link>
-                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <div className="d-grid gap-2 d-sm-flex justify-content-sm-end">
                       <button
-                        className="btn btn-primary me-md-2 "
+                        className="btn btn-primary sm-col-12 "
                         style={{ color: "white" }}
                         type="button"
                         data-bs-toggle="modal"
@@ -221,7 +236,7 @@ export default function Table() {
                       </button>
 
                       <button
-                        className="btn btn-primary me-md-2 "
+                        className="btn btn-primary "
                         style={{ color: "white" }}
                         type="button"
                         onClick={handlePDF}

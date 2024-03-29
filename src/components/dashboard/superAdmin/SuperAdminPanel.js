@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Loading from "../Loading";
+import Cookies from "js-cookie";
 
 export default function SuperAdminPanel({ user }) {
   const userId = user._id;
@@ -8,12 +9,18 @@ export default function SuperAdminPanel({ user }) {
   const [dbNumber, setDbNumber] = useState();
   const [postsNumber, setPostsNumber] = useState();
   const [loading, setLoading] = useState(false);
+  const token = Cookies.get("token");
 
   const getUsersNumber = async () => {
     try {
       setLoading(true);
       const res = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUsersNumber/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUsersNumber/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const { usersNumber } = res.data;
@@ -33,7 +40,12 @@ export default function SuperAdminPanel({ user }) {
     try {
       setLoading(true);
       const res = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getPostsNumber/${userId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getPostsNumber/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       // console.log(res.data);
       const { postsNumber } = res.data;
@@ -89,13 +101,13 @@ export default function SuperAdminPanel({ user }) {
                 <div className="row">
                   <div className="col">
                     <div className="mb-3">
-                      <strong>Total Website Users: {usersNumber}</strong>
+                      <strong>Total Website Users: {usersNumber || 0}</strong>
                     </div>
                     <div className="mb-3">
-                      <strong>Total Databases: {dbNumber}</strong>
+                      <strong>Total Databases: {dbNumber || 0}</strong>
                     </div>
                     <div className="mb-3">
-                      <strong>Total Posts: {postsNumber}</strong>
+                      <strong>Total Posts: {postsNumber || 0}</strong>
                     </div>
                   </div>
                 </div>

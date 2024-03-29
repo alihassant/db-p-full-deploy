@@ -11,3 +11,12 @@ export default function getDataFromToken(request) {
     console.log(err);
   }
 }
+
+export function getToken(request) {
+  try {
+    const token = request.cookies.get("token")?.value;
+    return token;
+  } catch (err) {
+    console.log(err);
+  }
+}

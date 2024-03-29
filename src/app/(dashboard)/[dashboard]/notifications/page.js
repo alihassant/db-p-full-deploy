@@ -3,6 +3,7 @@
 import "@/app/dashboard.min.css";
 import Loading from "@/components/dashboard/Loading";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function Profile() {
@@ -35,12 +36,16 @@ export default function Profile() {
   const getUserNotifications = async () => {
     if (user) {
       try {
+        const token = Cookies.get("token");
         const response = await axios.get(
           `https://good-puce-elephant-tie.cyclic.app/api/user/getNotifications/${user._id}`,
           {
             method: "GET",
             next: {
               revalidate: 60,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -66,6 +71,7 @@ export default function Profile() {
     if (user) {
       getUserNotifications();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (

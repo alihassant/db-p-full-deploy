@@ -15,6 +15,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import action from "@/app/actions";
 import revalidateDataPath from "@/app/actions";
+import Cookies from "js-cookie";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -87,11 +88,16 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setError(null);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       getDb();
       setMessage(response.data.message);
     } catch (err) {
@@ -110,9 +116,15 @@ export default function Table() {
   async function handlePDF(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getUsersPDF/${dbId}`;
-      const response = await axios.get(url, { responseType: "blob" });
+      const response = await axios.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
 
       // Assuming you want to display the PDF in the browser
@@ -149,7 +161,7 @@ export default function Table() {
                     >
                       {db?.name}
                     </Link>
-                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <div className="d-grid gap-2 d-sm-flex justify-content-sm-end">
                       <button
                         className="btn btn-primary me-md-2 "
                         style={{ color: "white" }}

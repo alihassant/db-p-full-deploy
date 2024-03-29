@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const userId = await getDataFromToken(request);
-  const token = request.cookies.get("token")?.value;
   const res = await axios.get(
     `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`,
     {
@@ -14,7 +13,6 @@ export async function GET(request) {
       },
     }
   );
-  // console.log(res.status === 200);
   const user = res.data;
   return NextResponse.json(user);
 }

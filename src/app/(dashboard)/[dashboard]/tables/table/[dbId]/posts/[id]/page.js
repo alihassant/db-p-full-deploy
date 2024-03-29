@@ -12,6 +12,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import Image from "next/image";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import Cookies from "js-cookie";
 // import { useRouter } from "next/navigation";
 
 const INITIAL_UPDATE_ENTRY = {
@@ -51,8 +52,14 @@ export default function Post({ params }) {
 
   const getPost = async () => {
     try {
+      const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getPost/${postId}`
+        `https://good-puce-elephant-tie.cyclic.app/api/db/getPost/${postId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       // console.log(response.data);
       if (response) {
@@ -154,6 +161,7 @@ export default function Post({ params }) {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setSuccessMessage(null);
       setError(null);
@@ -161,14 +169,22 @@ export default function Post({ params }) {
         const images = await handleImageUpload();
         const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
         const payload = { ...updatedEntry, images };
-        const response = await axios.post(url, payload);
+        const response = await axios.post(url, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         getPost();
         setSuccessMessage(response.data.message);
         console.log("Entry Updated Successfully!!!");
       } else {
         const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
         const payload = { ...updatedEntry, images: null };
-        const response = await axios.post(url, payload);
+        const response = await axios.post(url, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         getPost();
         setSuccessMessage(response.data.message);
         console.log("Entry Updated Successfully!!!");
@@ -189,6 +205,7 @@ export default function Post({ params }) {
   async function handleRemoveSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setError(null);
 
@@ -196,7 +213,11 @@ export default function Post({ params }) {
 
       const url = `https://good-puce-elephant-tie.cyclic.app/api/post/deletePost`;
       const payload = { ...removeEntry };
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setError(null);
       setSuccessMessage(response.data.message);
       window.location.pathname = `/dashboard/tables/table/${dbId}/posts`;
@@ -216,11 +237,19 @@ export default function Post({ params }) {
   async function handlePDF(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       setLoading(true);
       setError(null);
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getPostPDF/${dbId}/${postId}`;
-      const response = await axios.get(url, { responseType: "blob" });
-      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const response = await axios.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const pdfBlob = new Blob([response.data], {
+        type: "application/pdf",
+      });
 
       // Assuming you want to display the PDF in the browser
       const url1 = window.URL.createObjectURL(pdfBlob);

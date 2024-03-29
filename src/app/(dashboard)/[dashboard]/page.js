@@ -13,11 +13,13 @@ import SuperAdminPanel from "@/components/dashboard/superAdmin/SuperAdminPanel";
 import axios from "axios";
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { useParams, useSearchParams } from "next/navigation";
 
 const INITIAL_DB_NAME = {
   name: "",
   userId: "",
-  totalHeaders: "0",
+  totalHeaders: "",
   media: "",
   emails: "",
   notifications: "",
@@ -28,11 +30,12 @@ const MAX_NUMBER = 10;
 const MIN_NUMBER = 3;
 
 export default function Dashboard() {
+  const searchParams = useSearchParams();
+  const successParam = searchParams.get("success") || "";
+
   const [successMessage, setSuccessMessage] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
-
-  const [dbNew, setNewDb] = useState(INITIAL_DB_NAME);
   const [fieldsNum, setFieldsNum] = useState(0);
 
   // getting user data
@@ -66,6 +69,37 @@ export default function Dashboard() {
   // finish getting user data
   INITIAL_DB_NAME.userId = user?._id;
 
+  const userUpdate = async () => {
+    try {
+      const token = Cookies.get("token");
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/subscription/updateUserSubscription`;
+      const response = await axios.patch(
+        url,
+        {
+          userId: user._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        action("/dashboard");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (user && successParam === "true") {
+      userUpdate();
+      console.log("user updated");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   function handleFieldsNum(e) {
     const { name, value } = e.target;
     setFieldsNum(value);
@@ -76,39 +110,6 @@ export default function Dashboard() {
     const { name, value } = e.target;
     setDb((prev) => ({ ...prev, [name]: value }));
   }
-
-  // const [notification, setNotification] = useState(null);
-
-  // useEffect(() => {
-  //   if (user) {
-  //     // Assuming user is your user data
-  //     // Establish WebSocket connection
-  //     const socket = openSocket("https://good-puce-elephant-tie.cyclic.app");
-  //     console.log("socket", socket);
-
-  //     // Emit the user ID to the server after connecting
-  //     socket.on("connect", () => {
-  //       const userId = user._id; // Replace this with the actual user ID
-  //       socket.emit("userId", userId);
-  //     });
-
-  //     // Listen for 'notification' events from the server
-  //     socket.on("notification", (data) => {
-  //       setNotification(data.message);
-  //       console.log("Received notification:", data);
-  //       setTimeout(() => {
-  //         setNotification(null);
-  //       }, 5000);
-  //       // Handle notification here (e.g., show toast)
-  //     });
-
-  //     // Cleanup function
-  //     return () => {
-  //       // Close the WebSocket connection when component unmounts
-  //       socket.disconnect();
-  //     };
-  //   }
-  // }, [user]); // Run effect when user data changes
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -126,10 +127,14 @@ export default function Dashboard() {
         setLoading(false);
         return;
       }
+      const token = Cookies.get("token");
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
       const payload = { ...db };
-      setNewDb(payload);
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDb(INITIAL_DB_NAME);
       setSuccessMessage(response.data.message);
     } catch (err) {

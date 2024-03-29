@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -83,9 +84,14 @@ export default function Table() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const token = Cookies.get("token");
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("New User Added Successfully!!!");
     } catch (err) {
       console.log(err);

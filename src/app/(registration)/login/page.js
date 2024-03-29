@@ -1,10 +1,8 @@
 "use client";
 
 import "@/app/dashboard.min.css";
-import Loading from "@/components/dashboard/Loading";
 import { handleLogin } from "@/utils/auth";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useState } from "react";
 
@@ -72,7 +70,7 @@ export default function Login() {
                       <div className="text-center">
                         <h4 className="text-dark mb-4">Welcome Back!</h4>
                       </div>
-                      <form className="user" onSubmit={handleSubmit}>
+                      <form className="user mt-md-5" onSubmit={handleSubmit}>
                         {error && (
                           <div className="alert alert-danger" role="alert">
                             {error}
@@ -117,7 +115,7 @@ export default function Login() {
                           </div>
                         </div>
                         <button
-                          className="btn btn-primary d-block btn-user w-100"
+                          className="btn btn-primary d-block btn-user w-100 my-md-5"
                           type="submit"
                         >
                           {(loading && (
@@ -133,28 +131,13 @@ export default function Login() {
                             "Login"}
                         </button>
                         <hr />
-                        <a
-                          className="btn btn-primary d-block btn-google btn-user w-100 mb-2"
-                          role="button"
-                        >
-                          <i className="fab fa-google" />
-                          &nbsp; Login with Google
-                        </a>
-                        <a
-                          className="btn btn-primary d-block btn-facebook btn-user w-100"
-                          role="button"
-                        >
-                          <i className="fab fa-facebook-f" />
-                          &nbsp; Login with Facebook
-                        </a>
-                        <hr />
                       </form>
-                      <div className="text-center">
+                      <div className="text-center mt-md-5">
                         <a className="small" href="#">
                           Forgot Password?
                         </a>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center mb-md-5">
                         <a className="small" href="/signup">
                           Create an Account!
                         </a>
