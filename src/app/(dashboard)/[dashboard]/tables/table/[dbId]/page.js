@@ -1,10 +1,6 @@
 "use client";
 
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import "@/app/dashboard.min.css";
-import Image from "next/image";
-import Footer from "@/components/dashboard/Footer";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import Loading from "@/components/dashboard/Loading";
@@ -13,6 +9,7 @@ import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import { revalidateDataTag } from "@/app/actions";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -93,6 +90,7 @@ export default function Table() {
         },
       });
       console.log("New User Added Successfully!!!");
+      revalidateDataTag(db);
     } catch (err) {
       console.log(err);
     }

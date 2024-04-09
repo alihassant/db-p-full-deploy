@@ -1,3 +1,4 @@
+import "@/app/dashboard.min.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Loading from "../Loading";
@@ -67,11 +68,10 @@ export default function SuperAdminPanel({ user }) {
 
   return (
     <>
-      <div className="col-lg-5 col-xl-4">
-        <div className="card shadow mb-4">
-          <div className="card-header d-flex justify-content-between align-items-center">
-            <h6 className="text-primary fw-bold m-0">Super Admin Panel</h6>
-            {/* <div className="dropdown no-arrow">
+      <div className="card shadow mb-4">
+        <div className="card-header py-3 d-flex justify-content-between align-items-center">
+          <h6 className="text-primary fw-bold m-0">Super Admin Panel</h6>
+          {/* <div className="dropdown no-arrow">
               <button
                 className="btn btn-link btn-sm dropdown-toggle"
                 aria-expanded="false"
@@ -94,26 +94,25 @@ export default function SuperAdminPanel({ user }) {
                 </a>
               </div>
             </div> */}
-          </div>
-          <div className="card-body" style={{ minHeight: "165px" }}>
-            {(loading && <Loading />) || (
-              <>
-                <div className="row">
-                  <div className="col">
-                    <div className="mb-3">
-                      <strong>Total Website Users: {usersNumber || 0}</strong>
-                    </div>
-                    <div className="mb-3">
-                      <strong>Total Databases: {dbNumber || 0}</strong>
-                    </div>
-                    <div className="mb-3">
-                      <strong>Total Posts: {postsNumber || 0}</strong>
-                    </div>
+        </div>
+        <div className="card-body" style={{ minHeight: "165px" }}>
+          {(loading && <Loading />) || (
+            <>
+              <div className="row">
+                <div className="col">
+                  <div className="mb-3">
+                    <strong>Total Website Users: {usersNumber || 0}</strong>
+                  </div>
+                  <div className="mb-3">
+                    <strong>Total Databases: {dbNumber || 0}</strong>
+                  </div>
+                  <div className="mb-3">
+                    <strong>Total Posts: {postsNumber || 0}</strong>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -1,21 +1,17 @@
 "use client";
 
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import "@/app/dashboard.min.css";
-import Image from "next/image";
-import Footer from "@/components/dashboard/Footer";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import Loading from "@/components/dashboard/Loading";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import axios from "axios";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
-import action from "@/app/actions";
 import revalidateDataPath from "@/app/actions";
 import Cookies from "js-cookie";
+import { PLANS } from "@/config/stripe";
+import DbUsersTable from "@/components/dashboard/tables/DbUsersTable";
 
 const INITIAL_NEW_USER = {
   email: "",
@@ -72,6 +68,10 @@ export default function Table() {
     }
   };
 
+  const totalUsersDb = db?.users.length;
+  const userPlan = user?.currentPlan;
+  const plan = PLANS.find((plan) => plan.slug === userPlan);
+
   useEffect(() => {
     getUser();
     getDb();
@@ -91,6 +91,17 @@ export default function Table() {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
+
+      if (totalUsersDb >= plan.users) {
+        setError(
+          `You have reached the maximum number of users allowed for the ${plan.name} plan`
+        );
+        setTimeout(() => {
+          setError(null);
+        }, 5000);
+        return;
+      }
+
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload, {
@@ -100,12 +111,22 @@ export default function Table() {
       });
       getDb();
       setMessage(response.data.message);
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
     } catch (err) {
       setMessage(null);
       if (err.response) {
         setError(err.response.data.message);
+        setTimeout(() => {
+          console.log("Called");
+          setError(null);
+        }, 5000);
       } else {
         setError("Something went wrong!!!");
+        setTimeout(() => {
+          setError(null);
+        }, 5000);
       }
     } finally {
       revalidateDataPath(path);
@@ -336,87 +357,7 @@ export default function Table() {
                           </div> */}
                     {/* <!-- Modal --> */}
                   </div>
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-md-6 text-nowrap">
-                        <div
-                          id="dataTable_length"
-                          className="dataTables_length"
-                          aria-controls="dataTable"
-                        >
-                          <label className="form-label">
-                            Show&nbsp;
-                            <select
-                              defaultValue={10}
-                              className="d-inline-block form-select form-select-sm"
-                            >
-                              <option value={10}>10</option>
-                              <option value={25}>25</option>
-                              <option value={50}>50</option>
-                              <option value={100}>100</option>
-                            </select>
-                            &nbsp;
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div
-                          className="text-md-end dataTables_filter"
-                          id="dataTable_filter"
-                        >
-                          <label className="form-label">
-                            <input
-                              type="search"
-                              className="form-control form-control-sm"
-                              aria-controls="dataTable"
-                              placeholder="Search"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      className="table-responsive table mt-2"
-                      id="dataTable"
-                      role="grid"
-                      aria-describedby="dataTable_info"
-                    >
-                      <table
-                        className="table table-striped my-0"
-                        id="dataTable"
-                      >
-                        <thead>
-                          <tr>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Email</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {users.map((user) => {
-                            // INITIAL_REMOVE_USER.removeUserId = user?._id;
-                            return (
-                              <tr key={user._id}>
-                                <td>{user.name}</td>
-                                <td>{user.role}</td>
-                                <td>{user.email}</td>
-                                <td>
-                                  <Link
-                                    href={`/dashboard/tables/table/${dbId}/users/${user.userId}`}
-                                    className="btn btn-primary"
-                                  >
-                                    {" "}
-                                    See More
-                                  </Link>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  <DbUsersTable dbId={dbId} users={users} />
                 </div>
               )) || <Loading />}
         </div>

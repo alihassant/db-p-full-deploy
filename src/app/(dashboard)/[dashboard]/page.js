@@ -1,28 +1,26 @@
 "use client";
 
-import openSocket from "socket.io-client";
-
 import revalidateDataPath from "@/app/actions";
 import action from "@/app/actions";
 import "@/app/dashboard.min.css";
-import Footer from "@/components/dashboard/Footer";
 import Loading from "@/components/dashboard/Loading";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import SuperAdminPanel from "@/components/dashboard/superAdmin/SuperAdminPanel";
 import axios from "axios";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import UserPanel from "@/components/dashboard/userPanel/UserPanel";
+import checkRemainingDbs from "@/helpers/checkRemainingDbs";
+import ToDo from "@/components/dashboard/ToDo";
 
 const INITIAL_DB_NAME = {
   name: "",
   userId: "",
   totalHeaders: "",
-  media: "",
-  emails: "",
-  notifications: "",
+  media: false,
+  emails: false,
+  notifications: false,
 };
 
 const MAX_NUMBER = 10;
@@ -127,6 +125,23 @@ export default function Dashboard() {
         setLoading(false);
         return;
       }
+
+      const remainingDbsCheck = checkRemainingDbs(
+        user.currentPlan,
+        user.databases.length
+      );
+
+      if (!remainingDbsCheck) {
+        setError(
+          "You have reached the limit of databases for your current plan."
+        );
+        setTimeout(() => {
+          setError(null);
+        }, 5000);
+        setLoading(false);
+        return;
+      }
+
       const token = Cookies.get("token");
       const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
       const payload = { ...db };
@@ -135,8 +150,10 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
+      getUser();
       setDb(INITIAL_DB_NAME);
       setSuccessMessage(response.data.message);
+      setFieldsNum("");
     } catch (err) {
       setError(err.response.data.message);
       setTimeout(() => {
@@ -262,7 +279,7 @@ export default function Dashboard() {
           <div className="row">
             <div className="col-lg-7 col-xl-8">
               <div className="card shadow mb-4">
-                <div className="card-header d-flex justify-content-between align-items-center">
+                <div className="card-header py-3 d-flex justify-content-between align-items-center">
                   <h6 className="text-primary fw-bold m-0">Create Database</h6>
                 </div>
                 <div className="card-body">
@@ -325,55 +342,59 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="row g-3 ">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            <strong>
-                              Do you want to send notifications to the users?
-                            </strong>
-                          </label>
-                          <select
-                            className="form-select"
-                            aria-label="Default select example"
-                            id="notifications"
-                            name="notifications"
-                            onChange={handleChange}
-                            defaultValue={"1"}
-                          >
-                            <option value="1">Select Option Here</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
+                    {user && user.currentPlan === "pro" && (
+                      <>
+                        <div className="row g-3 ">
+                          <div className="col">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                <strong>
+                                  Do you want to send notifications to the
+                                  users?
+                                </strong>
+                              </label>
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                id="notifications"
+                                name="notifications"
+                                onChange={handleChange}
+                                defaultValue={"1"}
+                              >
+                                <option value="1">Select Option Here</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="row g-3 ">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            <strong>
-                              Do you want to send emails after every post
-                              addition/update to the users?
-                            </strong>
-                          </label>
-                          <select
-                            className="form-select"
-                            aria-label="Default select example"
-                            id="emails"
-                            name="emails"
-                            onChange={handleChange}
-                            defaultValue={"1"}
-                          >
-                            <option value="1">Select Option Here</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
+                        <div className="row g-3 ">
+                          <div className="col">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                <strong>
+                                  Do you want to send emails after every post
+                                  addition/update to the users?
+                                </strong>
+                              </label>
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                id="emails"
+                                name="emails"
+                                onChange={handleChange}
+                                defaultValue={"1"}
+                              >
+                                <option value="1">Select Option Here</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-
+                      </>
+                    )}
                     <div className="row g-3 ">
                       <div className="col">
                         <div className="mb-3">
@@ -397,7 +418,10 @@ export default function Dashboard() {
                       Array.from({ length: fieldsNum }).map((_, index) => (
                         <div className="row g-3 mb-3" key={index}>
                           <div className="col">
-                            <label className="form-label" htmlFor="tH1">
+                            <label
+                              className="form-label"
+                              htmlFor={`tH${index + 1}`}
+                            >
                               <strong>Data Header {index + 1}</strong>
                             </label>
                             <input
@@ -427,28 +451,20 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            {user.extraRole === "superAdmin" ? (
-              <SuperAdminPanel user={user} />
-            ) : (
-              <>
-                <div className="col-lg-5 col-xl-4">
-                  <div className="card shadow mb-4">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h6 className="text-primary fw-bold m-0">User Panel</h6>
-                    </div>
-                    <div className="card-body" style={{ minHeight: "165px" }}>
-                      <div className="row">
-                        <div className="col">
-                          <div className="mb-3">
-                            <strong>User Panel</strong>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="col-lg-5 col-xl-4">
+              {user && (
+                <>
+                  <ToDo user={user} />
+                  {user.extraRole === "superAdmin" ? (
+                    <SuperAdminPanel user={user} />
+                  ) : (
+                    <>
+                      <UserPanel user={user} />
+                    </>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           <div className="row">
             <div className="col-lg-6 mb-4">
@@ -530,82 +546,6 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="card shadow mb-4">
-                <div className="card-header py-3">
-                  <h6 className="text-primary fw-bold m-0">Todo List</h6>
-                </div>
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item">
-                    <div className="row align-items-center no-gutters">
-                      <div className="col me-2">
-                        <h6 className="mb-0">
-                          <strong>Lunch meeting</strong>
-                        </h6>
-                        <span className="text-xs">10:30 AM</span>
-                      </div>
-                      <div className="col-auto">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="formCheck-1"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="formCheck-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="list-group-item">
-                    <div className="row align-items-center no-gutters">
-                      <div className="col me-2">
-                        <h6 className="mb-0">
-                          <strong>Lunch meeting</strong>
-                        </h6>
-                        <span className="text-xs">11:30 AM</span>
-                      </div>
-                      <div className="col-auto">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="formCheck-2"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="formCheck-2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="list-group-item">
-                    <div className="row align-items-center no-gutters">
-                      <div className="col me-2">
-                        <h6 className="mb-0">
-                          <strong>Lunch meeting</strong>
-                        </h6>
-                        <span className="text-xs">12:30 AM</span>
-                      </div>
-                      <div className="col-auto">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="formCheck-3"
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="formCheck-3"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
               </div>
             </div>
             <div className="col">

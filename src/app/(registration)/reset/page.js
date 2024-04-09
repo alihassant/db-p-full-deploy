@@ -1,41 +1,38 @@
 "use client";
 
 import "@/app/dashboard.min.css";
-import { handleLogin } from "@/utils/auth";
 import axios from "axios";
 import Script from "next/script";
 import { useState } from "react";
 
 const INITIAL_USER = {
   email: "",
-  password: "",
 };
 
-export default function Login() {
+export default function Reset() {
   const [error, setError] = useState();
+  const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(INITIAL_USER);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState(INITIAL_USER);
 
-  function handleChange(e) {
+  function handleReset(e) {
     const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
+    setEmail((prev) => ({ ...prev, [name]: value }));
   }
-  // console.log(user);
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       setError(null);
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/login`;
-      const payload = { ...user };
+      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/getResetPasswordLink`;
+      const payload = { ...email };
       const response = await axios.post(url, payload);
-      handleLogin(response.data.token, rememberMe);
-      window.location.pathname = "/dashboard";
-      // console.log(response.data);
+      setMessage(response.data.message);
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
     } catch (err) {
-      // console.log(err.response.data.message);
       if (err.message === "Network Error") {
         setError("Network Error: Please check your internet connection.");
       }
@@ -57,7 +54,10 @@ export default function Login() {
             <div className="card shadow-lg o-hidden border-0 my-5">
               <div className="card-body p-0">
                 <div className="row">
-                  <div className="col-lg-6 d-none d-lg-flex">
+                  <div
+                    className="col-lg-6 mh-100 d-none d-lg-flex"
+                    style={{ height: "650px" }}
+                  >
                     <div
                       className="flex-grow-1 bg-login-image"
                       style={{
@@ -67,17 +67,26 @@ export default function Login() {
                     />
                   </div>
                   <div className="col-lg-6">
-                    <div className="p-5">
+                    <div
+                      className="row align-items-center p-5"
+                      style={{ height: "100%" }}
+                    >
                       <div className="text-center">
-                        <h4 className="text-dark mb-4">Welcome Back!</h4>
+                        <h4 className="text-dark ">Reset Password!</h4>
                       </div>
-                      <form className="user mt-md-5" onSubmit={handleSubmit}>
+                      <form className="user" onSubmit={handleSubmit}>
                         {error && (
                           <div className="alert alert-danger" role="alert">
                             {error}
                           </div>
                         )}
+                        {message && (
+                          <div className="alert alert-success" role="alert">
+                            {message}
+                          </div>
+                        )}
                         <div className="mb-3">
+                          <label className="form-label">Email Address</label>
                           <input
                             className="form-control form-control-user"
                             type="email"
@@ -85,37 +94,18 @@ export default function Login() {
                             aria-describedby="emailHelp"
                             placeholder="Enter Email Address..."
                             name="email"
-                            onChange={handleChange}
+                            onChange={handleReset}
                           />
                         </div>
-                        <div className="mb-3">
-                          <input
-                            className="form-control form-control-user"
-                            type="password"
-                            id="password"
-                            placeholder="Password"
-                            name="password"
-                            onChange={handleChange}
-                          />
+                        <div className="text-center pt-md-5">
+                          <a className="small" href="/login">
+                            Already have an account? Login!
+                          </a>
                         </div>
-                        <div className="mb-3">
-                          <div className="custom-control custom-checkbox small">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input custom-control-input"
-                                type="checkbox"
-                                id="formCheck-1"
-                                name="rememberMe"
-                                onChange={() => setRememberMe(!rememberMe)}
-                              />
-                              <label
-                                className="form-check-label custom-control-label"
-                                htmlFor="formCheck-1"
-                              >
-                                Remember Me
-                              </label>
-                            </div>
-                          </div>
+                        <div className="text-center mb-md-5">
+                          <a className="small" href="/signup">
+                            Create an Account!
+                          </a>
                         </div>
                         <button
                           className="btn btn-primary d-block btn-user w-100 my-md-5"
@@ -131,20 +121,10 @@ export default function Login() {
                               </span>
                             </div>
                           )) ||
-                            "Login"}
+                            "Get Reset Link"}
                         </button>
                         <hr />
                       </form>
-                      <div className="text-center mt-md-5">
-                        <a className="small" href="/reset">
-                          Forgot Password?
-                        </a>
-                      </div>
-                      <div className="text-center mb-md-5">
-                        <a className="small" href="/signup">
-                          Create an Account!
-                        </a>
-                      </div>
                     </div>
                   </div>
                 </div>

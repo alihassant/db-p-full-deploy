@@ -3,9 +3,9 @@
 import "@/app/dashboard.min.css";
 import { handleLogin } from "@/utils/auth";
 import axios from "axios";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const INITIAL_USER = {
   name: "",
@@ -16,17 +16,23 @@ const INITIAL_USER = {
 };
 
 export default function Signup() {
-  const searchParams = useSearchParams();
-  const priceId = searchParams.get("priceId");
+  const [priceId, setPriceId] = useState();
+
+  useEffect(() => {
+    const priceId = new URLSearchParams(window.location.search).get("priceId");
+    setPriceId(priceId);
+  }, []);
 
   const Router = useRouter();
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(INITIAL_USER);
 
-  if (!priceId) {
-    Router.push("/pricing");
-  }
+  // useEffect(() => {
+  //   if (!priceId) {
+  //     window.location.pathname = "/pricing";
+  //   }
+  // }, []);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -193,7 +199,7 @@ export default function Signup() {
                     <hr />
                   </form>
                   <div className="text-center pt-md-5">
-                    <a className="small" href="forgot-password.html">
+                    <a className="small" href="/reset">
                       Forgot Password?
                     </a>
                   </div>

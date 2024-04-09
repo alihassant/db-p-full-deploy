@@ -1,11 +1,7 @@
 "use client";
 
 import "@/app/dashboard.min.css";
-import Footer from "@/components/dashboard/Footer";
 import Loading from "@/components/dashboard/Loading";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
-import axios from "axios";
 import Image from "next/image";
 import Script from "next/script";
 import { useEffect, useState } from "react";

@@ -11,7 +11,7 @@ import Navbar from "@/components/dashboard/Navbar";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Script from "next/script";
 import axios from "axios";
-import revalidateDataPath, { revalidateDataTag } from "@/app/actions";
+import { revalidateDataTag } from "@/app/actions";
 import Cookies from "js-cookie";
 
 export default function DashboardLayout({ children }) {
@@ -118,8 +118,9 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (notification) {
       toast(notification);
-      revalidateDataTag("notifications");
+      revalidateDataTag(userNotifications);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notification]);
 
   return (

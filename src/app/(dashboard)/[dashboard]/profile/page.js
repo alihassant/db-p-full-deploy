@@ -1,14 +1,12 @@
 "use client";
 
 import "@/app/dashboard.min.css";
-import Footer from "@/components/dashboard/Footer";
 import Loading from "@/components/dashboard/Loading";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import { PLANS } from "@/config/stripe";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
@@ -42,6 +40,8 @@ const defaultImage =
   "https://t4.ftcdn.net/jpg/00/64/67/27/360_F_64672736_U5kpdGs9keUll8CRQ3p3YaEv2M6qkVY5.jpg";
 
 export default function Profile() {
+  const router = useRouter();
+
   const [user, setUser] = useState();
   const [userData, setUserData] = useState();
 
@@ -304,6 +304,29 @@ export default function Profile() {
     }
   }
 
+  async function handleSubInfoChange(e) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError(null);
+      const url =
+        "https://good-puce-elephant-tie.cyclic.app/api/subscription/changePaymentMethod";
+      const payload = { userId: user._id };
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response) {
+        router.push(response.data.url);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     getUser();
   }, []);
@@ -484,69 +507,197 @@ export default function Profile() {
                       <p className="text-primary m-0 fw-bold">Subscription</p>
                     </div>
                     <div className="card-body">
-                      <div className="mb-3">
-                        <label className="form-label" htmlFor="username">
-                          <strong>
-                            Current Plan:{" "}
-                            {user.extraRole === "superAdmin"
-                              ? "Admin".toUpperCase()
-                              : user.currentPlan.toUpperCase()}
-                          </strong>
-                          <br></br>
-                        </label>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label" htmlFor="username">
-                          <strong>
-                            Subscription Status:{" "}
-                            {user.payments.subscription.status.toUpperCase() ||
-                              "Free"}
-                          </strong>
-                          <br></br>
-                        </label>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label" htmlFor="username">
-                          <strong>
-                            Subscription Expires:{" "}
-                            {(user.currentPlan === "free" && "NEVER") ||
-                              new Date(
-                                user.payments.subscription.validTill * 1000
-                              ).toDateString()}
-                          </strong>
-                          <br></br>
-                        </label>
-                      </div>
-                      <div className="mb-3">
-                        <button
-                          className="btn btn-primary btn-sm"
-                          type="submit"
-                          data-bs-toggle="modal"
-                          data-bs-target="#subscriptionModal"
-                        >
-                          Change Plan
-                        </button>
+                      {user.payments.subscription !== "" && (
+                        <>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                Current Plan:{" "}
+                                {user.extraRole === "superAdmin"
+                                  ? "Admin".toUpperCase()
+                                  : user.currentPlan.toUpperCase()}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                Subscription Status:{" "}
+                                {(user.currentPlan === "free" && "Free") ||
+                                  user.payments.subscription?.status.toUpperCase()}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                Subscription Expires:{" "}
+                                {((user.currentPlan === "free" ||
+                                  user.extraRole === "superAdmin") &&
+                                  "NEVER") ||
+                                  new Date(
+                                    user.payments.subscription.validTill * 1000
+                                  ).toDateString()}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            {user.payments.paymentMethod.hasCard &&
+                              (user.payments.subscription.status ===
+                                "canceled" ||
+                                user.payments.subscription.status ===
+                                  "expired" ||
+                                user.currentPlan === "free") && (
+                                <button
+                                  className="btn btn-primary btn-sm"
+                                  type="submit"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#subscriptionModal"
+                                >
+                                  Upgrade Plan
+                                </button>
+                              )}
 
-                        {user.payments.subscription.status === "active" && (
-                          <button
-                            className="btn btn-danger btn-sm mx-2"
-                            type="submit"
-                            onClick={handleSubCancel}
-                          >
-                            {(loading && (
-                              <div
-                                className="spinner-border spinner-border-sm"
-                                role="status"
-                              >
-                                <span className="visually-hidden">
-                                  Loading...
-                                </span>
-                              </div>
-                            )) ||
-                              "Cancel Subscription"}
-                          </button>
-                        )}
-                      </div>
+                            {user.payments.paymentMethod.hasCard &&
+                              user.payments.subscription.status === "active" &&
+                              user.currentPlan !== "free" && (
+                                <>
+                                  <button
+                                    className="btn btn-primary btn-sm"
+                                    type="button"
+                                    onClick={handleSubInfoChange}
+                                  >
+                                    {(loading && (
+                                      <div
+                                        className="spinner-border spinner-border-sm"
+                                        role="status"
+                                      >
+                                        <span className="visually-hidden">
+                                          Loading...
+                                        </span>
+                                      </div>
+                                    )) ||
+                                      "Change Plan"}
+                                  </button>
+                                  <button
+                                    className="btn btn-danger btn-sm mx-2"
+                                    type="submit"
+                                    onClick={handleSubCancel}
+                                  >
+                                    {(loading && (
+                                      <div
+                                        className="spinner-border spinner-border-sm"
+                                        role="status"
+                                      >
+                                        <span className="visually-hidden">
+                                          Loading...
+                                        </span>
+                                      </div>
+                                    )) ||
+                                      "Cancel Subscription"}
+                                  </button>
+                                </>
+                              )}
+                            {user.payments.paymentMethod.hasCard || (
+                              <p>Add payment method to change plan.</p>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="card shadow mb-3">
+                    <div className="card-header py-3">
+                      <p className="text-primary m-0 fw-bold">Payment Method</p>
+                    </div>
+                    <div className="card-body">
+                      {user.payments.paymentMethod.hasCard && (
+                        <>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                Card Number:{" "}
+                                {user.extraRole === "superAdmin"
+                                  ? "Admin".toUpperCase()
+                                  : `xxxx xxxx xxxx ${user.payments.paymentMethod.card.last4}`}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                Expiry Date:{" "}
+                                {`${user.payments.paymentMethod.card.exp_month}/${user.payments.paymentMethod.card.exp_year}`}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">
+                              <strong>
+                                Card Brand:{" "}
+                                {user.payments.paymentMethod.card.brand}
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              type="submit"
+                              onClick={handleSubInfoChange}
+                            >
+                              {(loading && (
+                                <div
+                                  className="spinner-border spinner-border-sm"
+                                  role="status"
+                                >
+                                  <span className="visually-hidden">
+                                    Loading...
+                                  </span>
+                                </div>
+                              )) ||
+                                "Change Payment Method"}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                      {!user.payments.paymentMethod.hasCard && (
+                        <>
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                              <strong>
+                                You do not have a payment method added yet.
+                              </strong>
+                              <br></br>
+                            </label>
+                          </div>
+                          <div className="mb-3">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              type="submit"
+                              onClick={handleSubInfoChange}
+                            >
+                              {(loading && (
+                                <div
+                                  className="spinner-border spinner-border-sm"
+                                  role="status"
+                                >
+                                  <span className="visually-hidden">
+                                    Loading...
+                                  </span>
+                                </div>
+                              )) ||
+                                "Add Payment Method"}
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -1168,7 +1319,9 @@ export default function Profile() {
                             role="button"
                             onClick={() => setPriceId("free")}
                           >
-                            Select
+                            {(priceId === freePlan.price.priceIds.test &&
+                              "Selected") ||
+                              "Select"}
                           </a>
                         </div>
                       </div>
@@ -1277,7 +1430,9 @@ export default function Profile() {
                               setPriceId(basicPlan.price.priceIds.test)
                             }
                           >
-                            Select
+                            {(priceId === basicPlan.price.priceIds.test &&
+                              "Selected") ||
+                              "Select"}
                           </a>
                         </div>
                       </div>
@@ -1402,7 +1557,9 @@ export default function Profile() {
                               setPriceId(proPlan.price.priceIds.test)
                             }
                           >
-                            Select
+                            {(priceId === proPlan.price.priceIds.test &&
+                              "Selected") ||
+                              "Select"}
                           </a>
                         </div>
                       </div>

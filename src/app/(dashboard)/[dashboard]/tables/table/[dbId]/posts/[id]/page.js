@@ -2,13 +2,8 @@
 
 import "@/app/dashboard.min.css";
 import Loading from "@/components/dashboard/Loading";
-import Footer from "@/components/dashboard/Footer";
 import axios from "axios";
-import { usePathname } from "next/navigation";
-import Script from "next/script";
 import { useEffect, useState } from "react";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import Image from "next/image";
 import getData from "@/app/api/table/tableData/[id]/route";
 import Link from "next/link";
@@ -378,7 +373,7 @@ export default function Post({ params }) {
                               </div>
                             )
                           )}
-                          {db.media && (
+                          {db && db.media && (
                             <div className="card-body text-center shadow">
                               <Image
                                 priority
