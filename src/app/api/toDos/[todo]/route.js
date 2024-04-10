@@ -6,7 +6,7 @@ export async function GET(request) {
   const userId = await getDataFromToken(request);
   const token = request.cookies.get("token")?.value;
   const res = await axios.get(
-    `https://good-puce-elephant-tie.cyclic.app/api/user/getTodos/${userId}`,
+    `https://tired-blue-worm.cyclic.app/api/user/getTodos/${userId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

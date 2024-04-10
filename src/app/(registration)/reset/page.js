@@ -25,7 +25,7 @@ export default function Reset() {
     try {
       setError(null);
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/getResetPasswordLink`;
+      const url = `https://tired-blue-worm.cyclic.app/api/auth/getResetPasswordLink`;
       const payload = { ...email };
       const response = await axios.post(url, payload);
       setMessage(response.data.message);

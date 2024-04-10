@@ -49,7 +49,7 @@ export default function Post({ params }) {
     try {
       const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getPost/${postId}`,
+        `https://tired-blue-worm.cyclic.app/api/db/getPost/${postId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -162,7 +162,7 @@ export default function Post({ params }) {
       setError(null);
       if (db.media) {
         const images = await handleImageUpload();
-        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
+        const url = `https://tired-blue-worm.cyclic.app/api/post/updateData/${postId}`;
         const payload = { ...updatedEntry, images };
         const response = await axios.post(url, payload, {
           headers: {
@@ -173,7 +173,7 @@ export default function Post({ params }) {
         setSuccessMessage(response.data.message);
         console.log("Entry Updated Successfully!!!");
       } else {
-        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/updateData/${postId}`;
+        const url = `https://tired-blue-worm.cyclic.app/api/post/updateData/${postId}`;
         const payload = { ...updatedEntry, images: null };
         const response = await axios.post(url, payload, {
           headers: {
@@ -206,7 +206,7 @@ export default function Post({ params }) {
 
       // await handleRemoveImage();
 
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/post/deletePost`;
+      const url = `https://tired-blue-worm.cyclic.app/api/post/deletePost`;
       const payload = { ...removeEntry };
       const response = await axios.post(url, payload, {
         headers: {
@@ -235,7 +235,7 @@ export default function Post({ params }) {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getPostPDF/${dbId}/${postId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/getPostPDF/${dbId}/${postId}`;
       const response = await axios.get(url, {
         responseType: "blob",
         headers: {

@@ -53,7 +53,7 @@ export default function Profile({ params }) {
 
   const getUser = async () => {
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUserDetails/${userId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/superAdmin/getUserDetails/${userId}`;
       const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -143,7 +143,7 @@ export default function Profile({ params }) {
 
       const images = await handleImageUpload();
       const payload = { ...newPhoto, profilePic: images };
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/user/changeProfilePic`;
+      const url = `https://tired-blue-worm.cyclic.app/api/user/changeProfilePic`;
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -172,8 +172,7 @@ export default function Profile({ params }) {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
-      const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/user/editAbout";
+      const url = "https://tired-blue-worm.cyclic.app/api/user/editAbout";
       const payload = editAbout;
       const response = await axios.post(url, payload, {
         headers: {
@@ -201,7 +200,7 @@ export default function Profile({ params }) {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/superAdmin/changeUserDetails";
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/changeUserDetails";
       const payload = editDetails;
       const response = await axios.patch(url, payload, {
         headers: {
@@ -229,7 +228,7 @@ export default function Profile({ params }) {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/superAdmin/changeUserPassword";
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/changeUserPassword";
       const payload = password;
       const response = await axios.patch(url, payload, {
         headers: {

@@ -52,7 +52,7 @@ export default function ToDo({ user }) {
       setLoading(true);
       setError(null);
       setMessage(null);
-      const url = "https://good-puce-elephant-tie.cyclic.app/api/user/postToDo";
+      const url = "https://tired-blue-worm.cyclic.app/api/user/postToDo";
       const payload = newToDo;
       const response = await axios.post(url, payload, {
         headers: {
@@ -73,7 +73,7 @@ export default function ToDo({ user }) {
   async function handleToDoStatusChange(todoId, status) {
     try {
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/user/changeToDoStatus`;
+      const url = `https://tired-blue-worm.cyclic.app/api/user/changeToDoStatus`;
       const payload = { toDoId: todoId, status };
       const response = await axios.put(url, payload, {
         headers: {

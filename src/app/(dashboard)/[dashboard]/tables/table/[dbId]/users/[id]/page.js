@@ -73,7 +73,7 @@ export default function Table({ params }) {
     try {
       const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`,
+        `https://tired-blue-worm.cyclic.app/api/auth/user/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -124,7 +124,7 @@ export default function Table({ params }) {
     try {
       const token = Cookies.get("token");
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/db/getUserData/${dbId}/${userId}`,
+        `https://tired-blue-worm.cyclic.app/api/db/getUserData/${dbId}/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -160,7 +160,7 @@ export default function Table({ params }) {
         return;
       }
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/changeUserRole`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/changeUserRole`;
       const payload = { ...changeRole };
       const response = await axios.post(url, payload, {
         headers: {
@@ -191,7 +191,7 @@ export default function Table({ params }) {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/removeUser`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/removeUser`;
       const payload = { ...removeUser };
       const response = await axios.post(url, payload, {
         headers: {

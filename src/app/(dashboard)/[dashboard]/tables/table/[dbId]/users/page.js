@@ -102,7 +102,7 @@ export default function Table() {
         return;
       }
 
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload, {
         headers: {
@@ -139,7 +139,7 @@ export default function Table() {
     try {
       const token = Cookies.get("token");
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getUsersPDF/${dbId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/getUsersPDF/${dbId}`;
       const response = await axios.get(url, {
         responseType: "blob",
         headers: {

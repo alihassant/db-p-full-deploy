@@ -70,7 +70,7 @@ export default function Dashboard() {
   const userUpdate = async () => {
     try {
       const token = Cookies.get("token");
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/subscription/updateUserSubscription`;
+      const url = `https://tired-blue-worm.cyclic.app/api/subscription/updateUserSubscription`;
       const response = await axios.patch(
         url,
         {
@@ -143,7 +143,7 @@ export default function Dashboard() {
       }
 
       const token = Cookies.get("token");
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/createDatabase`;
       const payload = { ...db };
       const response = await axios.post(url, payload, {
         headers: {

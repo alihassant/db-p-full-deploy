@@ -147,7 +147,7 @@ export default function Profile() {
 
       const images = await handleImageUpload();
       const payload = { ...newPhoto, profilePic: images };
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/user/changeProfilePic`;
+      const url = `https://tired-blue-worm.cyclic.app/api/user/changeProfilePic`;
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -176,8 +176,7 @@ export default function Profile() {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
-      const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/user/editAbout";
+      const url = "https://tired-blue-worm.cyclic.app/api/user/editAbout";
       const payload = editAbout;
       const response = await axios.post(url, payload, {
         headers: {
@@ -204,8 +203,7 @@ export default function Profile() {
       const token = Cookies.get("token");
       setLoading(true);
       setError(null);
-      const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/user/editUserDetails";
+      const url = "https://tired-blue-worm.cyclic.app/api/user/editUserDetails";
       const payload = editDetails;
       const response = await axios.post(url, payload, {
         headers: {
@@ -233,7 +231,7 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/user/editUserPassword";
+        "https://tired-blue-worm.cyclic.app/api/user/editUserPassword";
       const payload = password;
       const response = await axios.post(url, payload, {
         headers: {
@@ -260,7 +258,7 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/subscription/changeSubscription";
+        "https://tired-blue-worm.cyclic.app/api/subscription/changeSubscription";
       const payload = { userId: user._id, priceId };
       const response = await axios.post(url, payload, {
         headers: {
@@ -284,7 +282,7 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/subscription/cancelSubscription";
+        "https://tired-blue-worm.cyclic.app/api/subscription/cancelSubscription";
       const response = await axios.post(
         url,
         { userId: user._id },
@@ -310,7 +308,7 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/subscription/changePaymentMethod";
+        "https://tired-blue-worm.cyclic.app/api/subscription/changePaymentMethod";
       const payload = { userId: user._id };
       const response = await axios.post(url, payload, {
         headers: {

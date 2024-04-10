@@ -44,7 +44,7 @@ export default function Navbar({ user, notifications }) {
     // Reset unread count to zero
     try {
       setUnreadCount(0);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/user/markNotificationsRead`;
+      const url = `https://tired-blue-worm.cyclic.app/api/user/markNotificationsRead`;
       const response = await fetch(url, {
         method: "PATCH",
         headers: {

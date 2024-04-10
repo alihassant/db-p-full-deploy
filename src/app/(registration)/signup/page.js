@@ -54,7 +54,7 @@ export default function Signup() {
     try {
       setError(null);
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/signup`;
+      const url = `https://tired-blue-worm.cyclic.app/api/auth/signup`;
       const payload = { ...user, priceId };
       const response = await axios.post(url, payload);
       const { userId, email, name } = response.data;
@@ -62,7 +62,7 @@ export default function Signup() {
       // window.location.pathname = "/signup/plans";
       if (priceId !== "free") {
         const customerId = await axios.post(
-          "https://good-puce-elephant-tie.cyclic.app/api/subscription/createCustomer",
+          "https://tired-blue-worm.cyclic.app/api/subscription/createCustomer",
           {
             userId,
             email,
@@ -72,7 +72,7 @@ export default function Signup() {
 
         if (customerId.data.success) {
           const subscription = await axios.post(
-            "https://good-puce-elephant-tie.cyclic.app/api/subscription/createCheckoutLink",
+            "https://tired-blue-worm.cyclic.app/api/subscription/createCheckoutLink",
             {
               userId,
               priceId,

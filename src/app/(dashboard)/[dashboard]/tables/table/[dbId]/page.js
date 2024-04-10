@@ -82,7 +82,7 @@ export default function Table() {
     e.preventDefault();
     try {
       const token = Cookies.get("token");
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/addNewMember`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/addNewMember`;
       const payload = { ...newUser };
       const response = await axios.post(url, payload, {
         headers: {

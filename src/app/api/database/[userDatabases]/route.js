@@ -8,7 +8,7 @@ export async function GET(request) {
   const userId = await getDataFromToken(request);
   // console.log(userId);
   const res = await axios.get(
-    `https://good-puce-elephant-tie.cyclic.app/api/user/getUserDatabases/${userId}`,
+    `https://tired-blue-worm.cyclic.app/api/user/getUserDatabases/${userId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

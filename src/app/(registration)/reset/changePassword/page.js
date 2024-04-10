@@ -42,7 +42,7 @@ export default function ChangePassword() {
         setError("Passwords do not match.");
         return;
       }
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/resetPassword`;
+      const url = `https://tired-blue-worm.cyclic.app/api/auth/resetPassword`;
       const payload = { password: password.password, token };
       const response = await axios.post(url, payload);
       setMessage(response.data.message);

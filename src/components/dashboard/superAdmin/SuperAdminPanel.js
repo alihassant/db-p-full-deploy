@@ -16,7 +16,7 @@ export default function SuperAdminPanel({ user }) {
     try {
       setLoading(true);
       const res = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUsersNumber/${userId}`,
+        `https://tired-blue-worm.cyclic.app/api/superAdmin/getUsersNumber/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export default function SuperAdminPanel({ user }) {
     try {
       setLoading(true);
       const res = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getPostsNumber/${userId}`,
+        `https://tired-blue-worm.cyclic.app/api/superAdmin/getPostsNumber/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

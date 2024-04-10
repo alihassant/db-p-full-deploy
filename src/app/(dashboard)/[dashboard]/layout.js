@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }) {
     // if (user) {
     try {
       const response = await axios.get(
-        `https://good-puce-elephant-tie.cyclic.app/api/user/getNotifications/${user._id}`,
+        `https://tired-blue-worm.cyclic.app/api/user/getNotifications/${user._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }) {
       getUserNotifications();
       // Assuming user is your user data
       // Establish WebSocket connection
-      const socket = openSocket("https://good-puce-elephant-tie.cyclic.app");
+      const socket = openSocket("https://tired-blue-worm.cyclic.app");
       // console.log("socket", socket);
 
       // Emit the user ID to the server after connecting

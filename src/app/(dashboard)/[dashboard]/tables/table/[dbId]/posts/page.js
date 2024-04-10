@@ -135,7 +135,7 @@ export default function Table() {
           ...newEntry,
           images: { url: imageUrl.imageUrl, publicId: imageUrl.publicId },
         };
-        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/postData`;
+        const url = `https://tired-blue-worm.cyclic.app/api/post/postData`;
         const response = await axios.post(url, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -143,7 +143,7 @@ export default function Table() {
         });
         setSuccessMessage(response.data.message);
       } else {
-        const url = `https://good-puce-elephant-tie.cyclic.app/api/post/postData`;
+        const url = `https://tired-blue-worm.cyclic.app/api/post/postData`;
         const payload = { ...newEntry };
         const response = await axios.post(url, payload, {
           headers: {
@@ -177,7 +177,7 @@ export default function Table() {
     try {
       const token = Cookies.get("token");
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/db/getPostsPDF/${dbId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/db/getPostsPDF/${dbId}`;
       const response = await axios.get(url, { responseType: "blob" });
       const pdfBlob = new Blob([response.data], {
         type: "application/pdf",

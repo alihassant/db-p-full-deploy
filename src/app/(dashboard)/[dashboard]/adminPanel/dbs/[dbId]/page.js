@@ -40,7 +40,7 @@ export default function DbProfile({ params }) {
 
   const getUserDb = async () => {
     try {
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getUserDatabase/${dbId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/superAdmin/getUserDatabase/${dbId}`;
       const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ export default function DbProfile({ params }) {
       setError(null);
       setMessage(null);
       const url =
-        "https://good-puce-elephant-tie.cyclic.app/api/superAdmin/changeTableDetails";
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/changeTableDetails";
       const payload = editDetails;
       const response = await axios.patch(url, payload, {
         headers: {
@@ -114,7 +114,7 @@ export default function DbProfile({ params }) {
       setLoading(true);
       setError(null);
       setMessage(null);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/superAdmin/changeTableHeaders/${dbId}`;
+      const url = `https://tired-blue-worm.cyclic.app/api/superAdmin/changeTableHeaders/${dbId}`;
       const payload = changeTH;
       const response = await axios.patch(url, payload, {
         headers: {

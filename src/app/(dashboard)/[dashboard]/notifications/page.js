@@ -37,7 +37,7 @@ export default function Notifications() {
       try {
         const token = Cookies.get("token");
         const response = await axios.get(
-          `https://good-puce-elephant-tie.cyclic.app/api/user/getNotifications/${user._id}`,
+          `https://tired-blue-worm.cyclic.app/api/user/getNotifications/${user._id}`,
           {
             method: "GET",
             next: {

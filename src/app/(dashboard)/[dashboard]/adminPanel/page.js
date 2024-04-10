@@ -43,7 +43,7 @@ export default function Profile() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getAllUsers",
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/getAllUsers",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ export default function Profile() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://good-puce-elephant-tie.cyclic.app/api/superAdmin/getDatabases",
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/getDatabases",
         {
           headers: {
             Authorization: `Bearer ${token}`,

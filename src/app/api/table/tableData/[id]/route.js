@@ -6,7 +6,7 @@ export const revalidate = true;
 export default async function getData(path) {
   const token = Cookies.get("token");
   const response = await axios.get(
-    `https://good-puce-elephant-tie.cyclic.app/api/user/getDatabase/${path}`,
+    `https://tired-blue-worm.cyclic.app/api/user/getDatabase/${path}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -28,7 +28,7 @@ export default function Login() {
     try {
       setError(null);
       setLoading(true);
-      const url = `https://good-puce-elephant-tie.cyclic.app/api/auth/login`;
+      const url = `https://tired-blue-worm.cyclic.app/api/auth/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data.token, rememberMe);

@@ -11,7 +11,7 @@ export async function POST(req, res) {
     // console.log(req.text());
     // console.log(req.body);
 
-    const url = `https://good-puce-elephant-tie.cyclic.app/api/db/createDatabase`;
+    const url = `https://tired-blue-worm.cyclic.app/api/db/createDatabase`;
     const payload = { ...db };
 
     const response = await axios.post(url, payload, {
@@ -35,7 +35,7 @@ export async function GET(request) {
   const userId = await getDataFromToken(request);
   const token = request.cookies.get("token")?.value;
   const res = await axios.get(
-    `https://good-puce-elephant-tie.cyclic.app/api/auth/user/${userId}`,
+    `https://tired-blue-worm.cyclic.app/api/auth/user/${userId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
