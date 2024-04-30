@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ContactUsBanner() {
   return (
     <>
@@ -15,13 +17,13 @@ export default function ContactUsBanner() {
               </p>
             </div>
             <div className="my-2">
-              <a
+              <Link
                 className="btn btn-light fs-5 py-2 px-4"
                 role="button"
                 href="contact"
               >
                 Contact us
-              </a>
+              </Link>
             </div>
           </div>
         </div>
