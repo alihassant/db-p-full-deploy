@@ -1,6 +1,6 @@
 export default function Footer() {
-    return(<>
-    
+  return (
+    <>
       {/* Start: Footer Multi Column */}
       <footer>
         <div className="container py-4 py-lg-5">
@@ -10,9 +10,7 @@ export default function Footer() {
               <div className="fw-bold d-flex align-items-center mb-2">
                 <span>db</span>
               </div>
-              <p className="text-muted">
-                Sem eleifend donec molestie, integer quisque orci aliquam.
-              </p>
+              <p className="text-muted">Your daily database helper.</p>
             </div>
             {/* End: Social Icons */}
             {/* Start: Services */}
@@ -109,5 +107,6 @@ export default function Footer() {
         </div>
       </footer>
       {/* End: Footer Multi Column */}
-    </>)
+    </>
+  );
 }

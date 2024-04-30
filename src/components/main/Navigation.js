@@ -39,26 +39,6 @@ export default function Navigation() {
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
-                      pathname === "/features" ? "active" : ""
-                    }`}
-                    href="/features"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      pathname === "/integrations" ? "active" : ""
-                    }`}
-                    href="/integrations"
-                  >
-                    Integrations
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
                       pathname === "/pricing" ? "active" : ""
                     }`}
                     href="/pricing"

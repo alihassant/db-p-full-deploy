@@ -13,8 +13,7 @@ export default function Faq() {
                 </span>
               </h2>
               <p className="text-muted mb-5">
-                Curae hendrerit donec commodo hendrerit egestas tempus, turpis
-                facilisis nostra nunc. Vestibulum dui eget ultrices.
+                Following are some frequently asked questions about Vortaps.
               </p>
             </div>
           </div>
