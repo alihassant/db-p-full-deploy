@@ -222,13 +222,13 @@ export default function Profile() {
                         data-bs-parent="#accordionExample"
                       >
                         <div className="accordion-body">
-                          {contactMessages && (
+                          {!contactMessages && (
                             <div className="row">
                               <p className="fs-5">Total Messages : 0</p>
                               <p className="fs-6 mb-0">No message available</p>
                             </div>
                           )}
-                          {!contactMessages && (
+                          {contactMessages && (
                             <>
                               <div className="row">
                                 <p className="fs-5">
