@@ -122,6 +122,11 @@ export default function ToDo({ user }) {
                 <h6 className="text-secondary">No Active Task.</h6>
               </li>
             )}
+          {!toDos && !loading && (
+            <li className="list-group-item text-center mt-2">
+              <h6 className="text-secondary">No Active Task.</h6>
+            </li>
+          )}
           {toDos &&
             toDos
               .filter((todo) => todo.status === false)

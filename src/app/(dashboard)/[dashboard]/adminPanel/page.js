@@ -11,6 +11,7 @@ export default function Profile() {
   const [user, setUser] = useState();
   const [users, setUsers] = useState();
   const [dbs, setDbs] = useState();
+  const [contactMessages, setContactMessages] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
