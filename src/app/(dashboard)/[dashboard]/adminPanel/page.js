@@ -89,10 +89,35 @@ export default function Profile() {
     }
   };
 
+  const getAllContactMessages = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        "https://tired-blue-worm.cyclic.app/api/superAdmin/getContactMessages",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response) {
+        const { contacts } = response.data;
+        if (contacts) {
+          setContactMessages(contacts);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getUser();
     getAllUsers();
     getAllDbs();
+    getAllContactMessages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -172,6 +197,78 @@ export default function Profile() {
                               <div className="row">
                                 <DbsTableAdmin dbs={dbs} />
                               </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="accordion-item">
+                      <h2 className="accordion-header">
+                        <button
+                          className="accordion-button collapsed fs-5 fw-bolder"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#collapseFour"
+                          aria-expanded="false"
+                          aria-controls="collapseFour"
+                        >
+                          Contact Us Messages
+                        </button>
+                      </h2>
+                      <div
+                        id="collapseFour"
+                        className="accordion-collapse collapse"
+                        data-bs-parent="#accordionExample"
+                      >
+                        <div className="accordion-body">
+                          {contactMessages && (
+                            <div className="row">
+                              <p className="fs-5">Total Messages : 0</p>
+                              <p className="fs-6 mb-0">No message available</p>
+                            </div>
+                          )}
+                          {!contactMessages && (
+                            <>
+                              <div className="row">
+                                <p className="fs-5">
+                                  Total Messages : {contactMessages?.length}{" "}
+                                </p>
+                              </div>
+                              {contactMessages &&
+                                contactMessages.map((contact, index) => (
+                                  <div key={index} className="row mb-3">
+                                    <div className="col">
+                                      <label className="fs-6 fw-bold">
+                                        Name
+                                      </label>
+                                      <p className="fs-6 mb-0">
+                                        {contact.name}
+                                      </p>
+                                      <label className="fs-6 fw-bold">
+                                        Email
+                                      </label>
+                                      <p className="fs-6 mb-0">
+                                        {contact.email}
+                                      </p>
+                                      <label className="fs-6 fw-bold">
+                                        Message
+                                      </label>
+                                      <p className="fs-6 mb-0">
+                                        {contact.message}
+                                      </p>
+                                      <label className="fs-6 fw-bold">
+                                        Sent At
+                                      </label>
+                                      <p className="fs-6 fw-lighter">
+                                        {contact.createdAt &&
+                                          new Date(
+                                            contact.createdAt
+                                          ).toTimeString()}
+                                      </p>
+                                      <hr />
+                                    </div>
+                                  </div>
+                                ))}
                             </>
                           )}
                         </div>

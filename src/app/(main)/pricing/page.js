@@ -4,6 +4,7 @@ import Script from "next/script";
 import "@/app/bootstrap.min.css";
 import { PLANS } from "@/config/stripe";
 import ContactUsBanner from "@/components/main/ContactUsBanner";
+import Link from "next/link";
 
 export default function Pricing() {
   const freePlan = PLANS.find((plan) => plan.name === "Free");
@@ -29,6 +30,9 @@ export default function Pricing() {
                   Subscribe to one of the following plans and get access to all
                   the features and benefits.
                 </p>
+                <Link className="link-underline-secondary" href="/login">
+                  <u>Already have an account? Login Here</u>
+                </Link>
               </div>
             </div>
             <div className="row gy-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
