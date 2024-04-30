@@ -73,43 +73,43 @@ export default function DashboardLayout({ children }) {
       getUserNotifications();
       // Assuming user is your user data
       // Establish WebSocket connection
-      const socket = openSocket("https://tired-blue-worm.cyclic.app");
-      // console.log("socket", socket);
+      // const socket = openSocket("https://tired-blue-worm.cyclic.app");
+      // // console.log("socket", socket);
 
-      // Emit the user ID to the server after connecting
-      socket.on("connect", () => {
-        const userId = user._id; // Replace this with the actual user ID
-        socket.emit("userId", userId);
-      });
+      // // Emit the user ID to the server after connecting
+      // socket.on("connect", () => {
+      //   const userId = user._id; // Replace this with the actual user ID
+      //   socket.emit("userId", userId);
+      // });
 
-      // Listen for 'notification' events from the server
-      socket.on("notification", (data) => {
-        setNotification(data.message);
-        if (
-          data.action === "create" ||
-          data.action === "update" ||
-          data.action === "delete" ||
-          data.action === "add" ||
-          data.action === "remove" ||
-          data.action === "changeRole" ||
-          data.action === "cancelSubscription" ||
-          data.action === "changeSubscription"
-        ) {
-          setUserNotifications((prevNotifications) => [
-            ...prevNotifications,
-            data,
-          ]);
-        }
-        setTimeout(() => {
-          setNotification(null);
-        }, 5000);
-      });
+      // // Listen for 'notification' events from the server
+      // socket.on("notification", (data) => {
+      //   setNotification(data.message);
+      //   if (
+      //     data.action === "create" ||
+      //     data.action === "update" ||
+      //     data.action === "delete" ||
+      //     data.action === "add" ||
+      //     data.action === "remove" ||
+      //     data.action === "changeRole" ||
+      //     data.action === "cancelSubscription" ||
+      //     data.action === "changeSubscription"
+      //   ) {
+      //     setUserNotifications((prevNotifications) => [
+      //       ...prevNotifications,
+      //       data,
+      //     ]);
+      //   }
+      //   setTimeout(() => {
+      //     setNotification(null);
+      //   }, 5000);
+      // });
 
-      // Cleanup function
-      return () => {
-        // Close the WebSocket connection when component unmounts
-        socket.disconnect();
-      };
+      // // Cleanup function
+      // return () => {
+      //   // Close the WebSocket connection when component unmounts
+      //   socket.disconnect();
+      // };
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
