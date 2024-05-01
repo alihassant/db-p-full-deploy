@@ -2,6 +2,10 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "./globals.css";
 
+export const metadata = {
+  title: "Vortaps DB",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
