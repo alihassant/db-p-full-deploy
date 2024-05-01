@@ -38,7 +38,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="shadow-lg mb-3">
-                    <button className="btn btn-primary" type="submit">
+                    <button className="btn btn-primary" type="button">
                       Subscribe{" "}
                     </button>
                   </div>
